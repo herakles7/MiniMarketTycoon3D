@@ -26,6 +26,12 @@ namespace MiniMarketTycoon.Core
             {
                 GameStateManager.Instance.OnStateChanged += HandleStateChanged;
             }
+
+            // Ensure Stage 4 & 5 Economy, Inventory, and Upgrade singletons are initialized
+            _ = MiniMarketTycoon.Store.InventoryManager.Instance;
+            _ = MiniMarketTycoon.Economy.EconomyManager.Instance;
+            _ = MiniMarketTycoon.Economy.MarketUpgradeManager.Instance;
+            _ = MiniMarketTycoon.UI.FloatingFeedbackManager.Instance;
         }
 
         private void HandleStateChanged(GameState oldState, GameState newState)

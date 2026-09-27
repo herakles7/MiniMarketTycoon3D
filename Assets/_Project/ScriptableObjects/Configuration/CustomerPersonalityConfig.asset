@@ -1,0 +1,111 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90000000000000000000000000000016, type: 3}
+  m_Name: CustomerPersonalityConfig
+  m_EditorClassIdentifier: 
+  _personalities:
+  - PersonalityType: 0
+    DisplayName: Normal Shopper
+    Description: Standard customer with balanced shopping patterns.
+    SpawnWeight: 30
+    MoveSpeedMultiplierRange: {x: 0.98, y: 1.04}
+    ShelfInteractionMultiplier: 1
+    CheckoutPatienceMultiplier: 1
+    ShoppingTimeMultiplier: 1
+    MinProducts: 1
+    MaxProducts: 3
+    MinQuantityPerProduct: 1
+    MaxQuantityPerProduct: 2
+    PriceSensitivity: 0.2
+    MaxSkippedItemsBeforeLeave: 99
+    PreferredCategory: 0
+    CategoryAffinity: 1
+  - PersonalityType: 1
+    DisplayName: Quick Shopper
+    Description: Fast walker (1.10-1.20x speed), quick shelf time (0.7x), buys 1-2 items.
+    SpawnWeight: 15
+    MoveSpeedMultiplierRange: {x: 1.12, y: 1.2}
+    ShelfInteractionMultiplier: 0.7
+    CheckoutPatienceMultiplier: 0.8
+    ShoppingTimeMultiplier: 0.75
+    MinProducts: 1
+    MaxProducts: 2
+    MinQuantityPerProduct: 1
+    MaxQuantityPerProduct: 1
+    PriceSensitivity: 0.2
+    MaxSkippedItemsBeforeLeave: 99
+    PreferredCategory: 0
+    CategoryAffinity: 1
+  - PersonalityType: 2
+    DisplayName: Bargain Hunter
+    Description: High price sensitivity, strong bias towards lower-priced retail items.
+    SpawnWeight: 15
+    MoveSpeedMultiplierRange: {x: 0.96, y: 1.04}
+    ShelfInteractionMultiplier: 1
+    CheckoutPatienceMultiplier: 1
+    ShoppingTimeMultiplier: 1
+    MinProducts: 1
+    MaxProducts: 3
+    MinQuantityPerProduct: 1
+    MaxQuantityPerProduct: 2
+    PriceSensitivity: 0.85
+    MaxSkippedItemsBeforeLeave: 99
+    PreferredCategory: 0
+    CategoryAffinity: 1
+  - PersonalityType: 3
+    DisplayName: Big Shopper
+    Description: Buys 3-5 distinct products with quantities up to 3 (max total 8 items).
+    SpawnWeight: 15
+    MoveSpeedMultiplierRange: {x: 0.92, y: 1}
+    ShelfInteractionMultiplier: 1
+    CheckoutPatienceMultiplier: 1.1
+    ShoppingTimeMultiplier: 1
+    MinProducts: 3
+    MaxProducts: 5
+    MinQuantityPerProduct: 1
+    MaxQuantityPerProduct: 3
+    PriceSensitivity: 0.1
+    MaxSkippedItemsBeforeLeave: 99
+    PreferredCategory: 0
+    CategoryAffinity: 1
+  - PersonalityType: 4
+    DisplayName: Patient Shopper
+    Description: High tolerance (1.5x checkout patience), calm demeanor in queues.
+    SpawnWeight: 10
+    MoveSpeedMultiplierRange: {x: 0.92, y: 1}
+    ShelfInteractionMultiplier: 1.2
+    CheckoutPatienceMultiplier: 1.5
+    ShoppingTimeMultiplier: 1.1
+    MinProducts: 1
+    MaxProducts: 3
+    MinQuantityPerProduct: 1
+    MaxQuantityPerProduct: 2
+    PriceSensitivity: 0.2
+    MaxSkippedItemsBeforeLeave: 99
+    PreferredCategory: 0
+    CategoryAffinity: 1
+  - PersonalityType: 5
+    DisplayName: Impatient Shopper
+    Description: Low queue patience (0.6x), leaves if queue is blocked or 2 items missing.
+    SpawnWeight: 15
+    MoveSpeedMultiplierRange: {x: 1.05, y: 1.15}
+    ShelfInteractionMultiplier: 0.8
+    CheckoutPatienceMultiplier: 0.6
+    ShoppingTimeMultiplier: 0.85
+    MinProducts: 1
+    MaxProducts: 3
+    MinQuantityPerProduct: 1
+    MaxQuantityPerProduct: 2
+    PriceSensitivity: 0.3
+    MaxSkippedItemsBeforeLeave: 2
+    PreferredCategory: 0
+    CategoryAffinity: 1

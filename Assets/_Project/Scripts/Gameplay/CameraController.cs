@@ -121,6 +121,45 @@ namespace MiniMarketTycoon.Gameplay
             _targetZoom = Mathf.Clamp(_targetZoom + zoomDelta * _zoomSpeed, _minZoom, _maxZoom);
         }
 
+        public Vector2 PanBoundsX => _panBoundsX;
+        public Vector2 PanBoundsZ => _panBoundsZ;
+        public float MaxZoom => _maxZoom;
+        public float MinZoom => _minZoom;
+
+        public void SetPanBounds(Vector2 boundsX, Vector2 boundsZ, float minZoom = 10f, float maxZoom = 28f)
+        {
+            _panBoundsX = boundsX;
+            _panBoundsZ = boundsZ;
+            _minZoom = minZoom;
+            _maxZoom = maxZoom;
+            _targetZoom = Mathf.Clamp(_targetZoom, _minZoom, _maxZoom);
+            _targetPosition.x = Mathf.Clamp(_targetPosition.x, _panBoundsX.x, _panBoundsX.y);
+            _targetPosition.z = Mathf.Clamp(_targetPosition.z, _panBoundsZ.x, _panBoundsZ.y);
+        }
+
+        public void UpdateBoundsForLevel(int level)
+        {
+            switch (level)
+            {
+                case 1:
+                    SetPanBounds(new Vector2(-6f, 6f), new Vector2(-8f, 7f), 10f, 22f);
+                    break;
+                case 2:
+                    SetPanBounds(new Vector2(-6f, 12f), new Vector2(-8f, 7f), 10f, 25f);
+                    break;
+                case 3:
+                    SetPanBounds(new Vector2(-6f, 13f), new Vector2(-8f, 11f), 10f, 27f);
+                    break;
+                case 4:
+                    SetPanBounds(new Vector2(-13f, 13f), new Vector2(-8f, 11f), 10f, 30f);
+                    break;
+                case 5:
+                default:
+                    SetPanBounds(new Vector2(-14f, 14f), new Vector2(-8f, 16f), 10f, 34f);
+                    break;
+            }
+        }
+
         public void FocusOn(Vector3 targetWorldPosition)
         {
             _targetPosition = new Vector3(

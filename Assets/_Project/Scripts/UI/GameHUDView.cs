@@ -44,7 +44,15 @@ namespace MiniMarketTycoon.UI
                 UpdateCashDisplay(1000.0);
             }
 
-            SetLevel(1);
+            if (MiniMarketTycoon.Economy.MarketUpgradeManager.HasInstance)
+            {
+                MiniMarketTycoon.Economy.MarketUpgradeManager.Instance.OnMarketLevelUpgraded += SetLevel;
+                SetLevel(MiniMarketTycoon.Economy.MarketUpgradeManager.Instance.CurrentLevel);
+            }
+            else
+            {
+                SetLevel(1);
+            }
         }
 
         private void OnDestroy()
@@ -52,6 +60,11 @@ namespace MiniMarketTycoon.UI
             if (CurrencyManager.HasInstance)
             {
                 CurrencyManager.Instance.OnCurrencyChanged -= HandleCurrencyChanged;
+            }
+
+            if (MiniMarketTycoon.Economy.MarketUpgradeManager.HasInstance)
+            {
+                MiniMarketTycoon.Economy.MarketUpgradeManager.Instance.OnMarketLevelUpgraded -= SetLevel;
             }
         }
 
@@ -87,6 +100,20 @@ namespace MiniMarketTycoon.UI
         private void OnTabClicked(string tabName)
         {
             Debug.Log($"[GameHUDView] Tab clicked: {tabName}");
+            if (tabName == "Shop" || tabName == "Market")
+            {
+                if (UIManager.HasInstance)
+                {
+                    UIManager.Instance.OpenRestock();
+                }
+            }
+            else if (tabName == "Upgrades")
+            {
+                if (UIManager.HasInstance)
+                {
+                    UIManager.Instance.OpenUpgrades();
+                }
+            }
         }
     }
 }

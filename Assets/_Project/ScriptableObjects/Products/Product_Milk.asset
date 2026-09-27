@@ -13,9 +13,14 @@ MonoBehaviour:
   m_Name: Product_Milk
   m_EditorClassIdentifier: 
   _id: prod_milk
-  _displayName: Fresh Milk 1L
+  _displayName: Daily Milk
   _icon: {fileID: 0}
-  _category: 2
-  _basePrice: 4.5
-  _baseProfit: 1.8
+  _category: 1
+  _shelfType: 1
+  _purchasePrice: 1.5
+  _sellPrice: 2.2
+  _startingStock: 15
+  _maxStock: 40
+  _shelfCapacity: 8
   _unlockLevel: 1
+  _productPrefab: {fileID: 0}

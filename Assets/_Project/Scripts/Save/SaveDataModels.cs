@@ -17,6 +17,7 @@ namespace MiniMarketTycoon.Save
         public int StoreLevel = 1;
         public List<string> UnlockedShelfIds = new List<string>();
         public int CapacityLevel = 1;
+        public int CheckoutSpeedLevel = 1;
     }
 
     [Serializable]
@@ -39,14 +40,34 @@ namespace MiniMarketTycoon.Save
     {
         public string ProductId;
         public bool IsUnlocked;
+        public int CurrentStock;
+        public int ItemsSold;
+        public double Revenue;
+        public double Profit;
 
         public ProductSaveData() { }
 
-        public ProductSaveData(string productId, bool isUnlocked)
+        public ProductSaveData(string productId, bool isUnlocked, int currentStock = 0)
         {
             ProductId = productId;
             IsUnlocked = isUnlocked;
+            CurrentStock = currentStock;
+            ItemsSold = 0;
+            Revenue = 0.0;
+            Profit = 0.0;
         }
+    }
+
+    [Serializable]
+    public class EconomySaveData
+    {
+        public double TodayRevenue;
+        public double TodayExpenses;
+        public double TodayProfit;
+        public int ItemsSold;
+        public int CustomersServed;
+        public double LifetimeRevenue;
+        public double LifetimeProfit;
     }
 
     [Serializable]
@@ -80,6 +101,7 @@ namespace MiniMarketTycoon.Save
         public StoreData Store = new StoreData();
         public List<UpgradeSaveData> Upgrades = new List<UpgradeSaveData>();
         public List<ProductSaveData> Products = new List<ProductSaveData>();
+        public EconomySaveData Economy = new EconomySaveData();
         public SettingsData Settings = new SettingsData();
 
         public GameSaveData()

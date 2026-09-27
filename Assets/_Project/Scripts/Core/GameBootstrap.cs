@@ -42,7 +42,10 @@ namespace MiniMarketTycoon.Core
             // 7. Initialize GameManager
             var gameMgr = GameManager.Instance;
 
-            // 8. Initialize SceneLoader
+            // 8. Initialize MarketUpgradeManager
+            var upgradeMgr = MiniMarketTycoon.Economy.MarketUpgradeManager.Instance;
+
+            // 9. Initialize SceneLoader
             var sceneLoader = SceneLoader.Instance;
         }
 

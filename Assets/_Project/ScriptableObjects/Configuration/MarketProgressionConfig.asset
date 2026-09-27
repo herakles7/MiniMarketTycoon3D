@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20000000000000000000000000000010, type: 3}
+  m_Name: MarketProgressionConfig
+  m_EditorClassIdentifier: 
+  _levels:
+  - Level: 1
+    Title: Starter Market
+    UpgradeCost: 500
+    MaxCustomers: 5
+    SpawnInterval: 8
+    ShelfCapacity: 8
+    ProductCapacityMultiplier: 1
+    CheckoutTime: 2.5
+    BenefitsSummary: Base Market Capacity
+  - Level: 2
+    Title: Expanded Mini Mart
+    UpgradeCost: 2000
+    MaxCustomers: 7
+    SpawnInterval: 7
+    ShelfCapacity: 12
+    ProductCapacityMultiplier: 1.5
+    CheckoutTime: 2.2
+    BenefitsSummary: +2 Customers, +4 Shelf Cap, 7s Spawn, 2.2s Checkout, +50% Stock
+  - Level: 3
+    Title: Busy Local Store
+    UpgradeCost: 7500
+    MaxCustomers: 10
+    SpawnInterval: 6
+    ShelfCapacity: 16
+    ProductCapacityMultiplier: 2
+    CheckoutTime: 1.9
+    BenefitsSummary: +3 Customers, +4 Shelf Cap, 6s Spawn, 1.9s Checkout, 2x Stock
+  - Level: 4
+    Title: Popular Superette
+    UpgradeCost: 20000
+    MaxCustomers: 14
+    SpawnInterval: 5
+    ShelfCapacity: 20
+    ProductCapacityMultiplier: 3
+    CheckoutTime: 1.6
+    BenefitsSummary: +4 Customers, +4 Shelf Cap, 5s Spawn, 1.6s Checkout, 3x Stock
+  - Level: 5
+    Title: Grand Tycoon Mart
+    UpgradeCost: 0
+    MaxCustomers: 18
+    SpawnInterval: 4
+    ShelfCapacity: 24
+    ProductCapacityMultiplier: 4
+    CheckoutTime: 1.3
+    BenefitsSummary: +4 Customers, +4 Shelf Cap, 4s Spawn, 1.3s Checkout, 4x Stock (MAX)
