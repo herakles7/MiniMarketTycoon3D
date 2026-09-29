@@ -56,6 +56,7 @@ namespace MiniMarketTycoon.Customers
                     fallbackRoot.AddComponent<CapsuleCollider>();
                     fallbackRoot.AddComponent<CustomerNavigation>();
                     fallbackRoot.AddComponent<CustomerAnimationController>();
+                    fallbackRoot.AddComponent<CustomerVisualController>();
                     fallbackRoot.AddComponent<CustomerVisual>();
                     fallbackRoot.AddComponent<CustomerController>();
                     _customerPrefab = fallbackRoot;

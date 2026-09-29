@@ -3,13 +3,16 @@ using UnityEngine;
 namespace MiniMarketTycoon.Customers
 {
     /// <summary>
-    /// Manages the visual presentation, stylized-realistic human proportions,
-    /// material variations (Customer_A, Customer_B, Customer_C), shopping basket accessory,
-    /// and optional debug state badge.
+    /// Manages high-level customer visual presentation and legacy variation compatibility.
+    /// Interfaces with the modular CustomerVisualController, coordinates debugging badges,
+    /// and ensures backward compatibility with Stage 8 systems.
     /// </summary>
     public class CustomerVisual : MonoBehaviour
     {
-        [Header("Mesh Renderers")]
+        [Header("Modular Visual Controller Reference")]
+        [SerializeField] private CustomerVisualController _visualController;
+
+        [Header("Mesh Renderers (Fallback / Legacy)")]
         [SerializeField] private MeshRenderer _headRenderer;
         [SerializeField] private MeshRenderer _hairRenderer;
         [SerializeField] private MeshRenderer _torsoRenderer;
@@ -35,16 +38,22 @@ namespace MiniMarketTycoon.Customers
 
         private CustomerVariationType _variationType;
 
-        public Transform TorsoTransform => _torsoTransform;
-        public Transform HeadTransform => _headTransform;
-        public Transform LeftArmTransform => _leftArmTransform;
-        public Transform RightArmTransform => _rightArmTransform;
-        public Transform LeftLegTransform => _leftLegTransform;
-        public Transform RightLegTransform => _rightLegTransform;
+        public CustomerVisualController VisualController => _visualController;
+        public Transform TorsoTransform => _visualController != null && _visualController.TorsoTransform != null ? _visualController.TorsoTransform : _torsoTransform;
+        public Transform HeadTransform => _visualController != null && _visualController.HeadTransform != null ? _visualController.HeadTransform : _headTransform;
+        public Transform LeftArmTransform => _visualController != null && _visualController.LeftArmTransform != null ? _visualController.LeftArmTransform : _leftArmTransform;
+        public Transform RightArmTransform => _visualController != null && _visualController.RightArmTransform != null ? _visualController.RightArmTransform : _rightArmTransform;
+        public Transform LeftLegTransform => _visualController != null && _visualController.LeftLegTransform != null ? _visualController.LeftLegTransform : _leftLegTransform;
+        public Transform RightLegTransform => _visualController != null && _visualController.RightLegTransform != null ? _visualController.RightLegTransform : _rightLegTransform;
 
         private void Awake()
         {
-            if (transform.childCount == 0)
+            if (_visualController == null)
+            {
+                _visualController = GetComponent<CustomerVisualController>();
+            }
+
+            if (transform.childCount == 0 && _visualController == null)
             {
                 Material skinMat = LoadMat("Mat_Skin_Warm");
                 Material hairMat = LoadMat("Mat_Hair_Brown");
@@ -62,11 +71,78 @@ namespace MiniMarketTycoon.Customers
             }
         }
 
+        public void ApplyVisualProfile(CustomerVisualProfile profile)
+        {
+            if (_visualController != null)
+            {
+                _visualController.ApplyProfile(profile);
+            }
+        }
+
         public void ApplyVariation(CustomerVariationType variation)
         {
             _variationType = variation;
 
-            // Load materials
+            if (_visualController != null)
+            {
+                var profile = new CustomerVisualProfile();
+                switch (variation)
+                {
+                    case CustomerVariationType.Customer_A:
+                        profile.Gender = CustomerGender.Male;
+                        profile.AgeGroup = CustomerAgeGroup.Adult;
+                        profile.SkinTone = CustomerSkinTone.Warm;
+                        profile.HairStyle = CustomerHairStyle.Short;
+                        profile.HairColor = CustomerHairColor.Brown;
+                        profile.TopType = CustomerTopType.TShirt;
+                        profile.BottomType = CustomerBottomType.Chino;
+                        profile.ShoeType = CustomerShoeType.Sneakers;
+                        profile.SkinMaterialName = "Mat_Skin_Warm";
+                        profile.HairMaterialName = "Mat_Hair_Brown";
+                        profile.TopMaterialName = "Mat_Clothes_Blue";
+                        profile.BottomMaterialName = "Mat_Pants_Khaki";
+                        profile.ShoeMaterialName = "Mat_Shoes_Dark";
+                        break;
+
+                    case CustomerVariationType.Customer_B:
+                        profile.Gender = CustomerGender.Female;
+                        profile.AgeGroup = CustomerAgeGroup.YoungAdult;
+                        profile.SkinTone = CustomerSkinTone.Olive;
+                        profile.HairStyle = CustomerHairStyle.Ponytail;
+                        profile.HairColor = CustomerHairColor.Black;
+                        profile.TopType = CustomerTopType.Blouse;
+                        profile.BottomType = CustomerBottomType.Jeans;
+                        profile.ShoeType = CustomerShoeType.Sneakers;
+                        profile.SkinMaterialName = "Mat_Skin_Olive";
+                        profile.HairMaterialName = "Mat_Hair_Black";
+                        profile.TopMaterialName = "Mat_Clothes_Teal";
+                        profile.BottomMaterialName = "Mat_Pants_Navy";
+                        profile.ShoeMaterialName = "Mat_Shoes_White";
+                        break;
+
+                    case CustomerVariationType.Customer_C:
+                        profile.Gender = CustomerGender.Male;
+                        profile.AgeGroup = CustomerAgeGroup.MiddleAdult;
+                        profile.SkinTone = CustomerSkinTone.Fair;
+                        profile.HairStyle = CustomerHairStyle.Medium;
+                        profile.HairColor = CustomerHairColor.DarkBlonde;
+                        profile.TopType = CustomerTopType.Shirt;
+                        profile.BottomType = CustomerBottomType.CasualPants;
+                        profile.ShoeType = CustomerShoeType.CasualShoes;
+                        profile.SkinMaterialName = "Mat_Skin_Fair";
+                        profile.HairMaterialName = "Mat_Hair_Blonde";
+                        profile.TopMaterialName = "Mat_Clothes_Maroon";
+                        profile.BottomMaterialName = "Mat_Pants_DarkGrey";
+                        profile.ShoeMaterialName = "Mat_Shoes_Dark";
+                        profile.HasGlasses = true;
+                        break;
+                }
+
+                _visualController.ApplyProfile(profile);
+                return;
+            }
+
+            // Fallback for procedural rig without CustomerVisualController
             Material skinMat = null;
             Material hairMat = null;
             Material clothesMat = null;
@@ -76,27 +152,27 @@ namespace MiniMarketTycoon.Customers
             switch (variation)
             {
                 case CustomerVariationType.Customer_A:
-                    skinMat = Resources.Load<Material>("Mat_Skin_Warm") ?? LoadMat("Mat_Skin_Warm");
-                    hairMat = Resources.Load<Material>("Mat_Hair_Brown") ?? LoadMat("Mat_Hair_Brown");
-                    clothesMat = Resources.Load<Material>("Mat_Clothes_Blue") ?? LoadMat("Mat_Clothes_Blue");
-                    pantsMat = Resources.Load<Material>("Mat_Pants_Khaki") ?? LoadMat("Mat_Pants_Khaki");
-                    shoeMat = Resources.Load<Material>("Mat_Shoes_Dark") ?? LoadMat("Mat_Shoes_Dark");
+                    skinMat = LoadMat("Mat_Skin_Warm");
+                    hairMat = LoadMat("Mat_Hair_Brown");
+                    clothesMat = LoadMat("Mat_Clothes_Blue");
+                    pantsMat = LoadMat("Mat_Pants_Khaki");
+                    shoeMat = LoadMat("Mat_Shoes_Dark");
                     break;
 
                 case CustomerVariationType.Customer_B:
-                    skinMat = Resources.Load<Material>("Mat_Skin_Olive") ?? LoadMat("Mat_Skin_Olive");
-                    hairMat = Resources.Load<Material>("Mat_Hair_Black") ?? LoadMat("Mat_Hair_Black");
-                    clothesMat = Resources.Load<Material>("Mat_Clothes_Teal") ?? LoadMat("Mat_Clothes_Teal");
-                    pantsMat = Resources.Load<Material>("Mat_Pants_Navy") ?? LoadMat("Mat_Pants_Navy");
-                    shoeMat = Resources.Load<Material>("Mat_Shoes_White") ?? LoadMat("Mat_Shoes_White");
+                    skinMat = LoadMat("Mat_Skin_Olive");
+                    hairMat = LoadMat("Mat_Hair_Black");
+                    clothesMat = LoadMat("Mat_Clothes_Teal");
+                    pantsMat = LoadMat("Mat_Pants_Navy");
+                    shoeMat = LoadMat("Mat_Shoes_White");
                     break;
 
                 case CustomerVariationType.Customer_C:
-                    skinMat = Resources.Load<Material>("Mat_Skin_Fair") ?? LoadMat("Mat_Skin_Fair");
-                    hairMat = Resources.Load<Material>("Mat_Hair_Blonde") ?? LoadMat("Mat_Hair_Blonde");
-                    clothesMat = Resources.Load<Material>("Mat_Clothes_Maroon") ?? LoadMat("Mat_Clothes_Maroon");
-                    pantsMat = Resources.Load<Material>("Mat_Pants_DarkGrey") ?? LoadMat("Mat_Pants_DarkGrey");
-                    shoeMat = Resources.Load<Material>("Mat_Shoes_Dark") ?? LoadMat("Mat_Shoes_Dark");
+                    skinMat = LoadMat("Mat_Skin_Fair");
+                    hairMat = LoadMat("Mat_Hair_Blonde");
+                    clothesMat = LoadMat("Mat_Clothes_Maroon");
+                    pantsMat = LoadMat("Mat_Pants_DarkGrey");
+                    shoeMat = LoadMat("Mat_Shoes_Dark");
                     break;
             }
 
@@ -122,16 +198,23 @@ namespace MiniMarketTycoon.Customers
 
         private Material LoadMat(string name)
         {
+            Material m = Resources.Load<Material>(name);
 #if UNITY_EDITOR
-            return UnityEditor.AssetDatabase.LoadAssetAtPath<Material>($"Assets/_Project/Art/Materials/{name}.mat");
-#else
-            return null;
+            if (m == null)
+            {
+                m = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>($"Assets/_Project/Art/Materials/{name}.mat");
+            }
 #endif
+            return m;
         }
 
         public void SetBasketVisible(bool visible)
         {
-            if (_shoppingBasketObject != null)
+            if (_visualController != null)
+            {
+                _visualController.SetBasketVisible(visible);
+            }
+            else if (_shoppingBasketObject != null)
             {
                 _shoppingBasketObject.SetActive(visible);
             }
@@ -161,7 +244,7 @@ namespace MiniMarketTycoon.Customers
             switch (state)
             {
                 case CustomerState.Shopping: return Color.yellow;
-                case CustomerState.WaitingInQueue: return new Color(1f, 0.5f, 0f); // Orange
+                case CustomerState.WaitingInQueue: return new Color(1f, 0.5f, 0f);
                 case CustomerState.CheckingOut: return Color.green;
                 case CustomerState.Leaving: return Color.cyan;
                 case CustomerState.Stuck: return Color.red;
@@ -169,12 +252,8 @@ namespace MiniMarketTycoon.Customers
             }
         }
 
-        /// <summary>
-        /// Assembles an articulated stylized human character hierarchy if building procedural prefab.
-        /// </summary>
         public void BuildProceduralHumanoidRig(Material defaultSkin, Material defaultHair, Material defaultClothes, Material defaultPants, Material defaultShoes, Material basketMat)
         {
-            // Clear existing children
             while (transform.childCount > 0)
             {
                 DestroyImmediate(transform.GetChild(0).gameObject);
@@ -185,12 +264,10 @@ namespace MiniMarketTycoon.Customers
             modelRoot.transform.localPosition = Vector3.zero;
             modelRoot.transform.localRotation = Quaternion.identity;
 
-            // 1. Pelvis / Hips root
             GameObject hips = new GameObject("Hips");
             hips.transform.parent = modelRoot.transform;
             hips.transform.localPosition = new Vector3(0f, 0.85f, 0f);
 
-            // 2. Torso (0.42m wide, 0.52m tall, 0.24m thick)
             GameObject torsoObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
             torsoObj.name = "Torso";
             torsoObj.transform.parent = hips.transform;
@@ -201,7 +278,6 @@ namespace MiniMarketTycoon.Customers
             _torsoRenderer.sharedMaterial = defaultClothes;
             _torsoTransform = torsoObj.transform;
 
-            // 3. Neck & Head
             GameObject headObj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             headObj.name = "Head";
             headObj.transform.parent = torsoObj.transform;
@@ -212,7 +288,6 @@ namespace MiniMarketTycoon.Customers
             _headRenderer.sharedMaterial = defaultSkin;
             _headTransform = headObj.transform;
 
-            // Hair cap
             GameObject hairObj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             hairObj.name = "Hair";
             hairObj.transform.parent = headObj.transform;
@@ -222,7 +297,6 @@ namespace MiniMarketTycoon.Customers
             _hairRenderer = hairObj.GetComponent<MeshRenderer>();
             _hairRenderer.sharedMaterial = defaultHair;
 
-            // 4. Left Arm (Shoulder pivot at x: -0.27m, y: 0.2m)
             GameObject lArmPivot = new GameObject("Left_Arm_Pivot");
             lArmPivot.transform.parent = torsoObj.transform;
             lArmPivot.transform.localPosition = new Vector3(-0.58f, 0.2f, 0f);
@@ -237,7 +311,6 @@ namespace MiniMarketTycoon.Customers
             _leftArmRenderer = lArmMesh.GetComponent<MeshRenderer>();
             _leftArmRenderer.sharedMaterial = defaultClothes;
 
-            // 5. Right Arm (Shoulder pivot at x: 0.27m, y: 0.2m)
             GameObject rArmPivot = new GameObject("Right_Arm_Pivot");
             rArmPivot.transform.parent = torsoObj.transform;
             rArmPivot.transform.localPosition = new Vector3(0.58f, 0.2f, 0f);
@@ -252,78 +325,77 @@ namespace MiniMarketTycoon.Customers
             _rightArmRenderer = rArmMesh.GetComponent<MeshRenderer>();
             _rightArmRenderer.sharedMaterial = defaultClothes;
 
-            // Shopping Basket held in left hand
-            GameObject basket = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            basket.name = "Shopping_Basket";
-            basket.transform.parent = lArmPivot.transform;
-            basket.transform.localPosition = new Vector3(-0.05f, -0.52f, 0.12f);
-            basket.transform.localScale = new Vector3(0.34f, 0.22f, 0.26f);
-            DestroyImmediate(basket.GetComponent<Collider>());
-            basket.GetComponent<MeshRenderer>().sharedMaterial = basketMat;
-            _shoppingBasketObject = basket;
-            _shoppingBasketObject.SetActive(false);
-
-            // 6. Left Leg (Hip pivot at x: -0.11m, y: 0f)
             GameObject lLegPivot = new GameObject("Left_Leg_Pivot");
             lLegPivot.transform.parent = hips.transform;
-            lLegPivot.transform.localPosition = new Vector3(-0.12f, 0f, 0f);
+            lLegPivot.transform.localPosition = new Vector3(-0.16f, 0f, 0f);
             _leftLegTransform = lLegPivot.transform;
 
             GameObject lLegMesh = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             lLegMesh.name = "Left_Leg_Mesh";
             lLegMesh.transform.parent = lLegPivot.transform;
-            lLegMesh.transform.localPosition = new Vector3(0f, -0.4f, 0f);
-            lLegMesh.transform.localScale = new Vector3(0.14f, 0.42f, 0.14f);
+            lLegMesh.transform.localPosition = new Vector3(0f, -0.42f, 0f);
+            lLegMesh.transform.localScale = new Vector3(0.26f, 0.42f, 0.26f);
             DestroyImmediate(lLegMesh.GetComponent<Collider>());
             _leftLegRenderer = lLegMesh.GetComponent<MeshRenderer>();
             _leftLegRenderer.sharedMaterial = defaultPants;
 
-            // Left Shoe
             GameObject lShoe = GameObject.CreatePrimitive(PrimitiveType.Cube);
             lShoe.name = "Left_Shoe";
             lShoe.transform.parent = lLegPivot.transform;
-            lShoe.transform.localPosition = new Vector3(0f, -0.8f, 0.04f);
-            lShoe.transform.localScale = new Vector3(0.13f, 0.09f, 0.22f);
+            lShoe.transform.localPosition = new Vector3(0f, -0.82f, 0.06f);
+            lShoe.transform.localScale = new Vector3(0.26f, 0.12f, 0.36f);
             DestroyImmediate(lShoe.GetComponent<Collider>());
             _leftShoeRenderer = lShoe.GetComponent<MeshRenderer>();
             _leftShoeRenderer.sharedMaterial = defaultShoes;
 
-            // 7. Right Leg (Hip pivot at x: 0.11m, y: 0f)
             GameObject rLegPivot = new GameObject("Right_Leg_Pivot");
             rLegPivot.transform.parent = hips.transform;
-            rLegPivot.transform.localPosition = new Vector3(0.12f, 0f, 0f);
+            rLegPivot.transform.localPosition = new Vector3(0.16f, 0f, 0f);
             _rightLegTransform = rLegPivot.transform;
 
             GameObject rLegMesh = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             rLegMesh.name = "Right_Leg_Mesh";
             rLegMesh.transform.parent = rLegPivot.transform;
-            rLegMesh.transform.localPosition = new Vector3(0f, -0.4f, 0f);
-            rLegMesh.transform.localScale = new Vector3(0.14f, 0.42f, 0.14f);
+            rLegMesh.transform.localPosition = new Vector3(0f, -0.42f, 0f);
+            rLegMesh.transform.localScale = new Vector3(0.26f, 0.42f, 0.26f);
             DestroyImmediate(rLegMesh.GetComponent<Collider>());
             _rightLegRenderer = rLegMesh.GetComponent<MeshRenderer>();
             _rightLegRenderer.sharedMaterial = defaultPants;
 
-            // Right Shoe
             GameObject rShoe = GameObject.CreatePrimitive(PrimitiveType.Cube);
             rShoe.name = "Right_Shoe";
             rShoe.transform.parent = rLegPivot.transform;
-            rShoe.transform.localPosition = new Vector3(0f, -0.8f, 0.04f);
-            rShoe.transform.localScale = new Vector3(0.13f, 0.09f, 0.22f);
+            rShoe.transform.localPosition = new Vector3(0f, -0.82f, 0.06f);
+            rShoe.transform.localScale = new Vector3(0.26f, 0.12f, 0.36f);
             DestroyImmediate(rShoe.GetComponent<Collider>());
             _rightShoeRenderer = rShoe.GetComponent<MeshRenderer>();
             _rightShoeRenderer.sharedMaterial = defaultShoes;
 
-            // 8. Debug State Floating Badge
-            GameObject debugBadge = new GameObject("Debug_State_Badge");
-            debugBadge.transform.parent = transform;
-            debugBadge.transform.localPosition = new Vector3(0f, 2.05f, 0f);
-            _debugTextMesh = debugBadge.AddComponent<TextMesh>();
+            GameObject basket = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            basket.name = "ShoppingBasket";
+            basket.transform.parent = rArmPivot.transform;
+            basket.transform.localPosition = new Vector3(0f, -0.5f, 0.15f);
+            basket.transform.localScale = new Vector3(0.35f, 0.25f, 0.45f);
+            DestroyImmediate(basket.GetComponent<Collider>());
+            var basketRend = basket.GetComponent<MeshRenderer>();
+            basketRend.sharedMaterial = basketMat;
+            _shoppingBasketObject = basket;
+            _shoppingBasketObject.SetActive(false);
+
+            GameObject badge = new GameObject("DebugBadge");
+            badge.transform.parent = transform;
+            badge.transform.localPosition = new Vector3(0f, 2.2f, 0f);
+            _debugBadgeRoot = badge;
+
+            GameObject textObj = new GameObject("BadgeText");
+            textObj.transform.parent = badge.transform;
+            textObj.transform.localPosition = Vector3.zero;
+            _debugTextMesh = textObj.AddComponent<TextMesh>();
+            _debugTextMesh.characterSize = 0.12f;
+            _debugTextMesh.fontSize = 24;
             _debugTextMesh.alignment = TextAlignment.Center;
             _debugTextMesh.anchor = TextAnchor.MiddleCenter;
-            _debugTextMesh.fontSize = 28;
-            _debugTextMesh.characterSize = 0.06f;
             _debugTextMesh.text = "IDLE";
-            _debugBadgeRoot = debugBadge;
             _debugBadgeRoot.SetActive(false);
         }
     }

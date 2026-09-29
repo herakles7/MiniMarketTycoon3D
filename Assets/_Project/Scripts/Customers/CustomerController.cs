@@ -21,6 +21,7 @@ namespace MiniMarketTycoon.Customers
         [SerializeField] private CustomerNavigation _navigation;
         [SerializeField] private CustomerAnimationController _animationController;
         [SerializeField] private CustomerVisual _visual;
+        [SerializeField] private CustomerVisualController _visualController;
 
         private CustomerConfiguration _config;
         private CustomerTargetSelector _targetSelector;
@@ -38,6 +39,7 @@ namespace MiniMarketTycoon.Customers
         public CustomerState CurrentState => _currentState;
         public CustomerShoppingData ShoppingData => _shoppingData;
         public CustomerPersonalityData PersonalityData => _personalityData;
+        public CustomerVisualController VisualController => _visualController;
 
         public event Action<CustomerController, CustomerState> OnStateChanged;
         public event Action<CustomerController, CustomerPersonalityType> OnCustomerPersonalityAssigned;
@@ -49,6 +51,7 @@ namespace MiniMarketTycoon.Customers
             if (_navigation == null) _navigation = GetComponent<CustomerNavigation>();
             if (_animationController == null) _animationController = GetComponent<CustomerAnimationController>();
             if (_visual == null) _visual = GetComponent<CustomerVisual>();
+            if (_visualController == null) _visualController = GetComponent<CustomerVisualController>();
         }
 
         public void InitializeDependencies(
@@ -98,13 +101,23 @@ namespace MiniMarketTycoon.Customers
 
             _personalityData.OnSatisfactionChanged += (sat) => OnCustomerSatisfactionChanged?.Invoke(this, sat);
             OnCustomerPersonalityAssigned?.Invoke(this, _personalityData.PersonalityType);
+            _animationController.SetPersonality(_personalityData.PersonalityType);
 
             // Configure speed & visual variation with personality speed multiplier
             float baseSpeed = _config != null ? _config.GetRandomWalkSpeed() : 1.25f;
             _navigation.SetSpeed(baseSpeed * _personalityData.MoveSpeedMultiplier);
             _navigation.WarpTo(spawnPosition);
 
-            _visual.ApplyVariation(variation);
+            if (_visualController != null)
+            {
+                var profile = CustomerAppearanceRandomizer.GenerateProfile();
+                _visualController.ApplyProfile(profile);
+                _animationController.SetGender(profile.Gender);
+            }
+            else
+            {
+                _visual.ApplyVariation(variation);
+            }
             _visual.SetBasketVisible(false);
 
             // Populate shopping wishlist based on personality parameters
@@ -691,6 +704,18 @@ namespace MiniMarketTycoon.Customers
             ChangeState(CustomerState.Leaving);
         }
 
+        public void ApplyVisualProfile(CustomerVisualProfile profile)
+        {
+            if (_visualController != null)
+            {
+                _visualController.ApplyProfile(profile);
+                if (_animationController != null && profile != null)
+                {
+                    _animationController.SetGender(profile.Gender);
+                }
+            }
+        }
+
         public void ResetForPool()
         {
             _navigation.Stop();
@@ -702,7 +727,12 @@ namespace MiniMarketTycoon.Customers
             _personalityData.Reset();
             _currentState = CustomerState.Idle;
             _animationController.SetState(CustomerState.Idle);
+            _animationController.SetPersonality(CustomerPersonalityType.Normal);
             _visual.SetBasketVisible(false);
+            if (_visualController != null)
+            {
+                _visualController.ResetVisuals();
+            }
             _visual.SetDebugState(CustomerState.Idle, false);
         }
     }
