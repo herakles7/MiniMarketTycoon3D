@@ -56,7 +56,7 @@ namespace MiniMarketTycoon.Gameplay
                 {
                     if (CurrencyManager.HasInstance)
                     {
-                        CurrencyManager.Instance.AddCash(_recyclingReward);
+                        CurrencyManager.Instance.AddCurrency(_recyclingReward);
                     }
 
                     if (FloatingFeedbackManager.HasInstance)

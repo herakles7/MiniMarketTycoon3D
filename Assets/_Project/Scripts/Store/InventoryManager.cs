@@ -271,6 +271,19 @@ namespace MiniMarketTycoon.Store
             return true;
         }
 
+        /// <summary>
+        /// Directly adds stock from delivery boxes or physical restocking without deducting cash again.
+        /// </summary>
+        public void Restock(string productId, int amount)
+        {
+            if (string.IsNullOrEmpty(productId) || amount <= 0) return;
+            int current = GetStock(productId);
+            int maxStock = GetMaxStock(productId);
+            int newStock = Mathf.Clamp(current + amount, 0, maxStock);
+            _currentStock[productId] = newStock;
+            OnStockChanged?.Invoke(productId, newStock, maxStock);
+        }
+
         protected override void OnDestroy()
         {
             if (SaveManager.HasInstance)
