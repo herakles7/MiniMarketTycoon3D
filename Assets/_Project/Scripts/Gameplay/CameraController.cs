@@ -17,6 +17,16 @@ namespace MiniMarketTycoon.Gameplay
         [SerializeField] private float _pitchAngle = 45f;
         [SerializeField] private float _yawAngle = 0f;
 
+        [Header("Camera Modes")]
+        [SerializeField] private CameraMode _mode = CameraMode.FollowPlayer;
+        [SerializeField] private Transform _playerTransform;
+        [SerializeField] private float _playerFollowZoom = 8.5f;
+        [SerializeField] private float _playerFollowPitch = 38f;
+        [SerializeField] private float _tycoonPitch = 50f;
+
+        public enum CameraMode { FollowPlayer, FreeTycoon }
+        public CameraMode CurrentMode => _mode;
+
         [Header("Pan Settings")]
         [SerializeField] private float _panSpeed = 0.035f;
         [SerializeField] private float _panDamping = 10f;
@@ -79,6 +89,31 @@ namespace MiniMarketTycoon.Gameplay
 
         private void LateUpdate()
         {
+            // Toggle Camera Mode via [C] key
+            if (UnityEngine.Input.GetKeyDown(KeyCode.C))
+            {
+                ToggleCameraMode();
+            }
+
+            if (_mode == CameraMode.FollowPlayer)
+            {
+                if (_playerTransform == null && PlayerManagerController.HasInstance)
+                {
+                    _playerTransform = PlayerManagerController.Instance.transform;
+                }
+
+                if (_playerTransform != null)
+                {
+                    _targetPosition = _playerTransform.position + Vector3.up * 0.9f;
+                    _pitchAngle = Mathf.Lerp(_pitchAngle, _playerFollowPitch, Time.unscaledDeltaTime * 6f);
+                    _targetZoom = _playerFollowZoom;
+                }
+            }
+            else
+            {
+                _pitchAngle = Mathf.Lerp(_pitchAngle, _tycoonPitch, Time.unscaledDeltaTime * 6f);
+            }
+
             // Smoothly interpolate pivot position
             _currentPivotPosition = Vector3.Lerp(_currentPivotPosition, _targetPosition, Time.unscaledDeltaTime * _panDamping);
 
@@ -86,6 +121,24 @@ namespace MiniMarketTycoon.Gameplay
             _currentZoom = Mathf.Lerp(_currentZoom, _targetZoom, Time.unscaledDeltaTime * _zoomDamping);
 
             ApplyCameraTransform(false);
+        }
+
+        public void ToggleCameraMode()
+        {
+            SetCameraMode(_mode == CameraMode.FollowPlayer ? CameraMode.FreeTycoon : CameraMode.FollowPlayer);
+        }
+
+        public void SetCameraMode(CameraMode newMode)
+        {
+            _mode = newMode;
+            if (_mode == CameraMode.FollowPlayer)
+            {
+                _targetZoom = _playerFollowZoom;
+            }
+            else
+            {
+                _targetZoom = 14f;
+            }
         }
 
         private void ApplyCameraTransform(bool instant)
@@ -105,6 +158,16 @@ namespace MiniMarketTycoon.Gameplay
 
         private void HandlePan(Vector2 screenDelta)
         {
+            // If following player, dragging switches to Free Tycoon mode
+            if (_mode == CameraMode.FollowPlayer)
+            {
+                if (screenDelta.sqrMagnitude > 25f)
+                {
+                    SetCameraMode(CameraMode.FreeTycoon);
+                }
+                return;
+            }
+
             Vector3 forward = Quaternion.Euler(0f, _yawAngle, 0f) * Vector3.forward;
             Vector3 right = Quaternion.Euler(0f, _yawAngle, 0f) * Vector3.right;
 

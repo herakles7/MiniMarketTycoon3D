@@ -468,25 +468,71 @@ namespace MiniMarketTycoon.Customers
                         if (shoppingItem != null && InventoryManager.HasInstance)
                         {
                             string currentPid = shoppingItem.ProductId;
-                            int currentStock = InventoryManager.Instance.GetStock(currentPid);
-                            int wanted = shoppingItem.QuantityRemaining;
-                            int take = Mathf.Min(wanted, currentStock);
+                            bool priceAccepted = true;
 
-                            if (take > 0 && InventoryManager.Instance.TryConsumeStock(currentPid, take))
+                            // Check shelf retail price vs market baseline
+                            if (ShelfManager.HasInstance)
                             {
-                                var pData = InventoryManager.Instance.GetProductData(currentPid);
-                                _shoppingData.AddProductToCart(pData, take);
-                                shoppingItem.QuantityCollected += take;
-                                _shoppingData.RecordCollected(take);
-
-                                if (take < wanted)
+                                var shelf = ShelfManager.Instance.FindShelfForProduct(currentPid);
+                                var priceTag = shelf != null ? shelf.GetComponentInChildren<MiniMarketTycoon.Store.ShelfPriceTag>() : null;
+                                if (priceTag != null)
                                 {
-                                    _personalityData.DeductSatisfaction(5, "PartialStock");
+                                    double effectivePrice = priceTag.CurrentPrice;
+                                    double marketPrice = priceTag.MarketBasePrice;
+
+                                    if (effectivePrice > marketPrice * 1.25)
+                                    {
+                                        float refuseChance = (_personalityData.PriceSensitivity * 0.75f) + 0.25f;
+                                        if (UnityEngine.Random.value < refuseChance)
+                                        {
+                                            priceAccepted = false;
+                                            if (FloatingFeedbackManager.HasInstance)
+                                            {
+                                                FloatingFeedbackManager.Instance.ShowMoodFeedback(
+                                                    transform.position + Vector3.up * 1.6f,
+                                                    $"😡 Çok Pahalı! (${effectivePrice:F2})",
+                                                    new Color(1f, 0.25f, 0.25f, 1f));
+                                            }
+                                            _personalityData.DeductSatisfaction(15, "PriceTooHigh");
+                                            _personalityData.RecordItemSkipped();
+                                        }
+                                    }
+                                    else if (effectivePrice < marketPrice * 0.9)
+                                    {
+                                        _personalityData.Satisfaction = Mathf.Min(100, _personalityData.Satisfaction + 8);
+                                        if (FloatingFeedbackManager.HasInstance)
+                                        {
+                                            FloatingFeedbackManager.Instance.ShowMoodFeedback(
+                                                transform.position + Vector3.up * 1.6f,
+                                                "😍 İndirimli Ürün!",
+                                                new Color(0.2f, 0.95f, 0.4f, 1f));
+                                        }
+                                    }
                                 }
                             }
-                            else
+
+                            if (priceAccepted)
                             {
-                                _personalityData.RecordItemSkipped();
+                                int currentStock = InventoryManager.Instance.GetStock(currentPid);
+                                int wanted = shoppingItem.QuantityRemaining;
+                                int take = Mathf.Min(wanted, currentStock);
+
+                                if (take > 0 && InventoryManager.Instance.TryConsumeStock(currentPid, take))
+                                {
+                                    var pData = InventoryManager.Instance.GetProductData(currentPid);
+                                    _shoppingData.AddProductToCart(pData, take);
+                                    shoppingItem.QuantityCollected += take;
+                                    _shoppingData.RecordCollected(take);
+
+                                    if (take < wanted)
+                                    {
+                                        _personalityData.DeductSatisfaction(5, "PartialStock");
+                                    }
+                                }
+                                else
+                                {
+                                    _personalityData.RecordItemSkipped();
+                                }
                             }
                         }
 
