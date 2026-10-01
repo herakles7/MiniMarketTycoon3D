@@ -55,6 +55,11 @@ namespace MiniMarketTycoon.Gameplay
                 }
             }
 
+            if (_targetCamera != null)
+            {
+                _targetCamera.allowMSAA = false; // Prevents "Disabling TAA because MSAA is on" console spam
+            }
+
             _currentPivotPosition = new Vector3(0f, 0f, 2f);
             _targetPosition = _currentPivotPosition;
             _targetZoom = _currentZoom;

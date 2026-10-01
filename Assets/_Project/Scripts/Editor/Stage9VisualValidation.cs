@@ -13,14 +13,8 @@ using MiniMarketTycoon.UI;
 
 namespace MiniMarketTycoon.Editor
 {
-    [InitializeOnLoad]
     public static class Stage9VisualValidation
     {
-        static Stage9VisualValidation()
-        {
-            EditorApplication.delayCall += RunValidation;
-        }
-
         [MenuItem("MiniMarket/Validate Stage 9 Visuals")]
         public static void RunValidation()
         {

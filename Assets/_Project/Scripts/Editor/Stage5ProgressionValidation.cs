@@ -9,17 +9,8 @@ using MiniMarketTycoon.UI;
 
 namespace MiniMarketTycoon.Editor
 {
-    [InitializeOnLoad]
     public static class Stage5ProgressionValidation
     {
-        static Stage5ProgressionValidation()
-        {
-            EditorApplication.delayCall += () =>
-            {
-                RunValidation();
-            };
-        }
-
         [MenuItem("MiniMarket/Validate Stage 5 Progression")]
         public static void RunValidation()
         {

@@ -12,14 +12,8 @@ using MiniMarketTycoon.UI;
 
 namespace MiniMarketTycoon.Editor
 {
-    [InitializeOnLoad]
     public static class Stage8CustomerPersonalityValidation
     {
-        static Stage8CustomerPersonalityValidation()
-        {
-            EditorApplication.delayCall += RunValidation;
-        }
-
         [MenuItem("MiniMarket/Validate Stage 8 Customer Personalities")]
         public static void RunValidation()
         {

@@ -10,14 +10,8 @@ using MiniMarketTycoon.UI;
 
 namespace MiniMarketTycoon.Editor
 {
-    [InitializeOnLoad]
     public static class Stage6ProductDiversityValidation
     {
-        static Stage6ProductDiversityValidation()
-        {
-            EditorApplication.delayCall += RunValidation;
-        }
-
         [MenuItem("MiniMarket/Validate Stage 6 Product Diversity")]
         public static void RunValidation()
         {

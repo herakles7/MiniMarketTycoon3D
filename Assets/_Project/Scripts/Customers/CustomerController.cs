@@ -296,11 +296,18 @@ namespace MiniMarketTycoon.Customers
                         ? _targetSelector.BrowsingPoint.position
                         : new Vector3(0f, 0f, -5.5f);
 
-                    _navigation.MoveTo(browseTarget, onReached: () =>
+                    // Add random scatter offset so multiple entering customers don't crowd or block each other
+                    Vector3 scatterOffset = new Vector3(UnityEngine.Random.Range(-0.9f, 0.9f), 0f, UnityEngine.Random.Range(-0.5f, 0.5f));
+
+                    _navigation.MoveTo(browseTarget + scatterOffset, onReached: () =>
                     {
                         // Proceed to first shelf item
                         SelectNextShelfTarget();
-                    }, onStuck: HandleStuckState);
+                    }, onStuck: () =>
+                    {
+                        // If crowded at the entrance door, don't abort! Proceed directly to shelf shopping
+                        SelectNextShelfTarget();
+                    });
                     break;
 
                 case CustomerState.GoingToShelf:

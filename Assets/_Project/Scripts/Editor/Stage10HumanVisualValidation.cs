@@ -19,14 +19,8 @@ namespace MiniMarketTycoon.Editor
     /// morphology ranges, eye/hair/clothing/accessory variation, animation state transitions,
     /// 3-stage LODGroup integrity, pooling lifecycle purity, and preservation of all gameplay systems.
     /// </summary>
-    [InitializeOnLoad]
     public static class Stage10HumanVisualValidation
     {
-        static Stage10HumanVisualValidation()
-        {
-            EditorApplication.delayCall += RunValidation;
-        }
-
         [MenuItem("MiniMarket/Validate Stage 10 Human Visuals")]
         public static void RunValidation()
         {

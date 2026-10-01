@@ -20,14 +20,8 @@ namespace MiniMarketTycoon.Editor
     /// Ensures 0 GC per-frame allocations, 3-level LODs, modular visual slots,
     /// complete pooling lifecycle purity, and preservation of all gameplay systems.
     /// </summary>
-    [InitializeOnLoad]
     public static class Stage11HumanLifeValidation
     {
-        static Stage11HumanLifeValidation()
-        {
-            EditorApplication.delayCall += RunValidation;
-        }
-
         [MenuItem("MiniMarket/Validate Stage 11 Human Life & Visuals")]
         public static void RunValidation()
         {

@@ -12,14 +12,8 @@ using MiniMarketTycoon.UI;
 
 namespace MiniMarketTycoon.Editor
 {
-    [InitializeOnLoad]
     public static class Stage7ExpansionValidation
     {
-        static Stage7ExpansionValidation()
-        {
-            EditorApplication.delayCall += RunValidation;
-        }
-
         [MenuItem("MiniMarket/Validate Stage 7 Store Expansion")]
         public static void RunValidation()
         {
