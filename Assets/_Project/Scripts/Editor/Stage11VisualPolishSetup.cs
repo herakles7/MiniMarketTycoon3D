@@ -471,7 +471,8 @@ namespace MiniMarketTycoon.Editor
             GameObject model = (GameObject)PrefabUtility.InstantiatePrefab(charModelAsset);
             model.name = "Model";
             model.transform.SetParent(root.transform, false);
-            model.transform.localPosition = Vector3.zero;
+            // Elevated by 0.82m so feet touch floor perfectly
+            model.transform.localPosition = new Vector3(0f, 0.82f, 0f);
             model.transform.localRotation = Quaternion.identity;
             // 3.765m FBX * 0.465f = exactly 1.75m natural human height!
             model.transform.localScale = Vector3.one * 0.465f;

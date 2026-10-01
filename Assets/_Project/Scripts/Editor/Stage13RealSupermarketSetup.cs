@@ -88,38 +88,47 @@ namespace MiniMarketTycoon.Editor
             GameObject empAsset = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Art/Characters/character-employee.fbx");
             if (empAsset == null) empAsset = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Art/Characters/characterMedium.fbx");
 
-            GameObject playerGo;
+            GameObject playerGo = new GameObject("Player_Manager");
+            playerGo.transform.position = new Vector3(0f, 0f, -3.5f); // Near market entrance
+            playerGo.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+
+            // Instantiate Model as child elevated by 0.82m
+            GameObject modelGo;
             if (empAsset != null)
             {
-                playerGo = (GameObject)PrefabUtility.InstantiatePrefab(empAsset);
+                modelGo = (GameObject)PrefabUtility.InstantiatePrefab(empAsset);
+                modelGo.name = "Model";
+                modelGo.transform.SetParent(playerGo.transform, false);
+                modelGo.transform.localPosition = new Vector3(0f, 0.82f, 0f);
+                modelGo.transform.localRotation = Quaternion.identity;
+                modelGo.transform.localScale = Vector3.one * 0.465f;
+
+                // Remove existing colliders on model parts
+                foreach (var col in modelGo.GetComponentsInChildren<Collider>(true))
+                {
+                    Object.DestroyImmediate(col);
+                }
             }
             else
             {
-                playerGo = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                modelGo = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                modelGo.name = "Model";
+                modelGo.transform.SetParent(playerGo.transform, false);
+                modelGo.transform.localPosition = new Vector3(0f, 0.88f, 0f);
+                modelGo.transform.localScale = new Vector3(0.6f, 0.88f, 0.6f);
+                foreach (var col in modelGo.GetComponentsInChildren<Collider>(true)) Object.DestroyImmediate(col);
             }
 
-            playerGo.name = "Player_Manager";
-            playerGo.transform.position = new Vector3(0f, 0f, -3.5f); // Near market entrance
-            playerGo.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
-            playerGo.transform.localScale = Vector3.one * 0.465f;
-
-            // Remove existing mesh colliders if any
-            foreach (var col in playerGo.GetComponentsInChildren<Collider>(true))
-            {
-                Object.DestroyImmediate(col);
-            }
-
-            // Character Controller
-            var cc = playerGo.GetComponent<CharacterController>();
-            if (cc == null) cc = playerGo.AddComponent<CharacterController>();
-            cc.height = 1.4f;
+            // Character Controller on root
+            var cc = playerGo.AddComponent<CharacterController>();
+            cc.height = 1.75f;
             cc.radius = 0.3f;
-            cc.center = new Vector3(0f, 0.7f, 0f);
+            cc.center = new Vector3(0f, 0.88f, 0f);
             cc.stepOffset = 0.25f;
 
-            // Animator
-            var anim = playerGo.GetComponent<Animator>();
-            if (anim == null) anim = playerGo.AddComponent<Animator>();
+            // Animator on Model
+            var anim = modelGo.GetComponent<Animator>();
+            if (anim == null) anim = modelGo.AddComponent<Animator>();
             if (rac != null) anim.runtimeAnimatorController = rac;
             anim.applyRootMotion = false;
             anim.cullingMode = AnimatorCullingMode.AlwaysAnimate;
@@ -127,7 +136,7 @@ namespace MiniMarketTycoon.Editor
             // Carry Socket
             GameObject socketGo = new GameObject("CarrySocket");
             socketGo.transform.SetParent(playerGo.transform, false);
-            socketGo.transform.localPosition = new Vector3(0f, 0.65f, 0.45f);
+            socketGo.transform.localPosition = new Vector3(0f, 0.95f, 0.55f);
 
             // Player Scripts
             var playerCtrl = playerGo.AddComponent<PlayerManagerController>();

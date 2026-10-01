@@ -61,6 +61,11 @@ namespace MiniMarketTycoon.Customers
             }
             else
             {
+                // Ensure character model is offset vertically so feet rest on the floor (Y = 0)
+                if (modelChild.localPosition.y < 0.1f)
+                {
+                    modelChild.localPosition = new Vector3(0f, 0.82f, 0f);
+                }
                 _characterRenderer = modelChild.GetComponentInChildren<SkinnedMeshRenderer>() as Renderer ?? modelChild.GetComponentInChildren<MeshRenderer>();
                 DiscoverBones();
             }
@@ -97,7 +102,8 @@ namespace MiniMarketTycoon.Customers
             {
                 GameObject model = Instantiate(kenneyPrefab, transform);
                 model.name = "Model";
-                model.transform.localPosition = Vector3.zero;
+                // Offset Y by 0.82m so character feet rest firmly on floor surface (Y = 0)
+                model.transform.localPosition = new Vector3(0f, 0.82f, 0f);
                 model.transform.localRotation = Quaternion.identity;
                 // Natural human scale: 3.765m FBX * 0.465f = 1.75m human height
                 model.transform.localScale = Vector3.one * 0.465f;

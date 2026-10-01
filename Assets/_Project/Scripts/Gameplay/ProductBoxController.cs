@@ -60,17 +60,38 @@ namespace MiniMarketTycoon.Gameplay
                 }
                 else
                 {
+                    // Top Packing Tape Accent
+                    Transform existingTape = transform.Find("PackingTape");
+                    if (existingTape == null)
+                    {
+                        GameObject tape = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                        tape.name = "PackingTape";
+                        tape.transform.SetParent(transform, false);
+                        tape.transform.localPosition = new Vector3(0f, 0.142f, 0f);
+                        tape.transform.localScale = new Vector3(0.06f, 0.005f, 0.35f);
+                        var tapeCol = tape.GetComponent<Collider>();
+                        if (tapeCol != null) Destroy(tapeCol);
+                        var tapeRend = tape.GetComponent<Renderer>();
+                        if (tapeRend != null)
+                        {
+                            Shader s = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+                            Material tapeMat = new Material(s);
+                            tapeMat.color = new Color(0.88f, 0.76f, 0.48f); // Kraft packaging tape
+                            tapeRend.sharedMaterial = tapeMat;
+                        }
+                    }
+
                     GameObject lblGo = new GameObject("BoxLabel");
                     lblGo.transform.SetParent(transform, false);
-                    lblGo.transform.localPosition = new Vector3(0f, 0.28f, 0f);
+                    lblGo.transform.localPosition = new Vector3(0f, 0.145f, 0f);
                     lblGo.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
 
                     _boxLabel = lblGo.AddComponent<TextMesh>();
                     _boxLabel.alignment = TextAlignment.Center;
                     _boxLabel.anchor = TextAnchor.MiddleCenter;
-                    _boxLabel.characterSize = 0.045f;
-                    _boxLabel.fontSize = 28;
-                    _boxLabel.color = new Color(0.2f, 0.2f, 0.2f, 1f);
+                    _boxLabel.characterSize = 0.024f;
+                    _boxLabel.fontSize = 24;
+                    _boxLabel.color = new Color(0.15f, 0.15f, 0.15f, 1f);
                 }
             }
 

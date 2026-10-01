@@ -73,6 +73,22 @@ namespace MiniMarketTycoon.Customers
             _exitPoint = exit;
         }
 
+        /// <summary>
+        /// Returns a scattered browsing destination dispersed among different store aisles
+        /// so entering customers do not bunch up or block each other.
+        /// </summary>
+        public Vector3 GetBrowsingTarget()
+        {
+            // Disperse between Left aisle (-2.8m), Center main aisle (0m), and Right aisle (+2.8m)
+            float[] aisleX = new float[] { -2.8f, 0f, 2.8f };
+            float chosenX = aisleX[UnityEngine.Random.Range(0, aisleX.Length)];
+            float zJitter = UnityEngine.Random.Range(-1.2f, 1.2f);
+            float baseY = _browsingPoint != null ? _browsingPoint.position.y : 0f;
+            float baseZ = _browsingPoint != null ? _browsingPoint.position.z : -5.5f;
+
+            return new Vector3(chosenX, baseY, baseZ + zJitter);
+        }
+
         public void RegisterPoint(CustomerInteractionPoint point)
         {
             if (point != null && !_interactionPoints.Contains(point))
