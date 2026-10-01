@@ -1,0 +1,47 @@
+fileFormatVersion: 2
+guid: 6bbede7adff3bebc69cc93ee98aa9a34
+ModelImporter:
+  serializedVersion: 22200
+  internalIDToNameTable: []
+  externalObjects: {}
+  materials:
+    materialImportMode: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    animationOptimizeBones: 0
+    animationDoRetargetingSphereCorrection: 0
+    animationDoSkinCorrection: 0
+    animationDoScaleCorrection: 0
+    animationDoScaleAdjustment: 0
+    animationDoAvatarAdjustment: 0
+    animationDoRootMotionCorrection: 0
+    animationDoScalePreservation: 0
+    animationDoPositionAdjustment: 0
+    animationDoMotionMatching: 0
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 0
+    importLights: 0
+    nodeNameToLower: 0
+    generateAnimations: 4
+    animationOptimizeBones: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

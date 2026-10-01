@@ -23,8 +23,17 @@ namespace MiniMarketTycoon.Customers
     /// </summary>
     public enum CustomerVariationType
     {
-        Customer_A, // Male, casual polo, khaki pants, brown hair
-        Customer_B, // Female, blouse, navy jeans, dark hair
-        Customer_C  // Casual urban, hoodie, dark trousers, blonde hair
+        Customer_A, // Human Male
+        Customer_B, // Human Female
+        Customer_C, // Skater Male
+        Customer_D, // Skater Female
+        Customer_E, // Criminal Male
+        Customer_F, // Cyborg Female
+        Customer_G, // Business Male (Suit & Tie)
+        Customer_H, // Business Female (Blazer & Smile)
+        Customer_I, // Grandpa (Cardigan & Glasses)
+        Customer_J, // Student (Hoodie & Headphones)
+        Customer_K, // Survivor Female
+        Customer_L  // Survivor Male
     }
 }

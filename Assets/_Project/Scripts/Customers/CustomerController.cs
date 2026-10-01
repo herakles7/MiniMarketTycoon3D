@@ -22,6 +22,7 @@ namespace MiniMarketTycoon.Customers
         [SerializeField] private CustomerAnimationController _animationController;
         [SerializeField] private CustomerVisual _visual;
         [SerializeField] private CustomerVisualController _visualController;
+        [SerializeField] private CustomerLookAtController _lookAtController;
 
         private CustomerConfiguration _config;
         private CustomerTargetSelector _targetSelector;
@@ -48,10 +49,16 @@ namespace MiniMarketTycoon.Customers
 
         private void Awake()
         {
+            InitializeComponents();
+        }
+
+        public void InitializeComponents()
+        {
             if (_navigation == null) _navigation = GetComponent<CustomerNavigation>();
             if (_animationController == null) _animationController = GetComponent<CustomerAnimationController>();
             if (_visual == null) _visual = GetComponent<CustomerVisual>();
             if (_visualController == null) _visualController = GetComponent<CustomerVisualController>();
+            if (_lookAtController == null) _lookAtController = GetComponent<CustomerLookAtController>();
         }
 
         public void InitializeDependencies(
@@ -108,15 +115,20 @@ namespace MiniMarketTycoon.Customers
             _navigation.SetSpeed(baseSpeed * _personalityData.MoveSpeedMultiplier);
             _navigation.WarpTo(spawnPosition);
 
-            if (_visualController != null)
-            {
-                var profile = CustomerAppearanceRandomizer.GenerateProfile();
-                _visualController.ApplyProfile(profile);
-                _animationController.SetGender(profile.Gender);
-            }
-            else
+            if (_visual != null)
             {
                 _visual.ApplyVariation(variation);
+            }
+
+            if (_visualController != null)
+            {
+                var profile = CustomerAppearanceRandomizer.GenerateProfile(null, _personalityData.PersonalityType);
+                _visualController.ApplyProfile(profile);
+                if (_animationController != null)
+                {
+                    _animationController.SetGender(profile.Gender);
+                    _animationController.SetHeightMultiplier(profile.HeightMultiplier);
+                }
             }
             _visual.SetBasketVisible(false);
 
@@ -251,8 +263,13 @@ namespace MiniMarketTycoon.Customers
             _currentState = newState;
             _stateTimer = 0f;
 
-            _animationController.SetState(newState);
-            _visual.SetDebugState(newState, _config != null && _config.DebugCustomerState);
+            if (_animationController == null || _visual == null || _navigation == null)
+            {
+                InitializeComponents();
+            }
+
+            if (_animationController != null) _animationController.SetState(newState);
+            if (_visual != null) _visual.SetDebugState(newState, _config != null && _config.DebugCustomerState);
             OnStateChanged?.Invoke(this, newState);
 
             OnEnterState(newState);
@@ -263,7 +280,10 @@ namespace MiniMarketTycoon.Customers
             switch (state)
             {
                 case CustomerState.Entering:
-                    _visual.SetBasketVisible(true);
+                    bool hasBasket = _visualController != null && _visualController.ActiveProfile != null
+                        ? _visualController.ActiveProfile.HasShoppingBasket
+                        : false;
+                    _visual.SetBasketVisible(hasBasket);
                     Vector3 enterTarget = _targetSelector != null && _targetSelector.EntrancePoint != null
                         ? _targetSelector.EntrancePoint.position
                         : new Vector3(0f, 0f, -9.5f);
@@ -287,6 +307,10 @@ namespace MiniMarketTycoon.Customers
                     if (_shoppingData.CurrentTargetPoint != null)
                     {
                         Vector3 shelfStandPos = _shoppingData.CurrentTargetPoint.Position;
+                        if (_lookAtController != null)
+                        {
+                            _lookAtController.SetTarget(shelfStandPos + Vector3.up * 0.9f);
+                        }
                         _navigation.MoveTo(shelfStandPos, onReached: () =>
                         {
                             ChangeState(CustomerState.Shopping);
@@ -296,11 +320,6 @@ namespace MiniMarketTycoon.Customers
                             SelectNextShelfTarget();
                         });
                     }
-                    else
-                    {
-                        // No shelf found, go to checkout
-                        ChangeState(CustomerState.GoingToCheckout);
-                    }
                     break;
 
                 case CustomerState.Shopping:
@@ -308,6 +327,10 @@ namespace MiniMarketTycoon.Customers
                     if (_shoppingData.CurrentTargetPoint != null)
                     {
                         _navigation.AlignFacing(_shoppingData.CurrentTargetPoint.FacingDirection);
+                        if (_lookAtController != null)
+                        {
+                            _lookAtController.SetTarget(_shoppingData.CurrentTargetPoint.Position + Vector3.up * 0.9f);
+                        }
                     }
 
                     // Stock check: if 0, do not wait at shelf, skip immediately
@@ -354,17 +377,31 @@ namespace MiniMarketTycoon.Customers
                     {
                         _navigation.AlignFacing(_queueController.GetFacingDirection());
                     }
+                    if (_lookAtController != null)
+                    {
+                        Vector3 qLook = transform.position + transform.forward * 3f + Vector3.up * 1f;
+                        _lookAtController.SetTarget(qLook);
+                    }
                     break;
 
                 case CustomerState.CheckingOut:
                     _navigation.Stop();
                     _visual.SetBasketVisible(false); // Basket placed on counter
+                    if (_lookAtController != null)
+                    {
+                        Vector3 checkoutLook = transform.position + transform.forward * 2f + Vector3.up * 1f;
+                        _lookAtController.SetTarget(checkoutLook);
+                    }
                     _actionDuration = MiniMarketTycoon.Economy.MarketUpgradeManager.HasInstance
                         ? MiniMarketTycoon.Economy.MarketUpgradeManager.Instance.CurrentCheckoutTime
                         : (_config != null ? _config.CheckoutTime : 2.5f);
                     break;
 
                 case CustomerState.Leaving:
+                    if (_lookAtController != null)
+                    {
+                        _lookAtController.ResetLookAt();
+                    }
                     if (_queueController != null)
                     {
                         _queueController.RemoveFromQueue(this);
@@ -374,18 +411,21 @@ namespace MiniMarketTycoon.Customers
                         ? _targetSelector.ExitPoint.position
                         : new Vector3(-2f, 0f, -14f);
 
-                    _navigation.MoveTo(exitTarget, onReached: () =>
+                    if (_navigation != null)
                     {
-                        ChangeState(CustomerState.Exited);
-                    }, onStuck: () =>
-                    {
-                        // Force release if stuck at exit
-                        ChangeState(CustomerState.Exited);
-                    });
+                        _navigation.MoveTo(exitTarget, onReached: () =>
+                        {
+                            ChangeState(CustomerState.Exited);
+                        }, onStuck: () =>
+                        {
+                            // Force release if stuck at exit
+                            ChangeState(CustomerState.Exited);
+                        });
+                    }
                     break;
 
                 case CustomerState.Exited:
-                    _navigation.Stop();
+                    if (_navigation != null) _navigation.Stop();
                     ResetForPool();
                     if (_pool != null)
                     {
@@ -534,8 +574,12 @@ namespace MiniMarketTycoon.Customers
                     break;
 
                 case CustomerState.GoingToCheckout:
-                    // If queue was full, retry periodically
-                    if (_stateTimer >= 1.5f)
+                    // If queue was full or missing, retry periodically
+                    if (_stateTimer >= 5.0f && _queueController == null)
+                    {
+                        ChangeState(CustomerState.Leaving);
+                    }
+                    else if (_stateTimer >= 1.5f)
                     {
                         _stateTimer = 0f;
                         TryEnterCheckoutQueue();
@@ -636,7 +680,6 @@ namespace MiniMarketTycoon.Customers
         {
             if (_queueController == null)
             {
-                ChangeState(CustomerState.Leaving);
                 return;
             }
 
@@ -712,28 +755,54 @@ namespace MiniMarketTycoon.Customers
                 if (_animationController != null && profile != null)
                 {
                     _animationController.SetGender(profile.Gender);
+                    _animationController.SetHeightMultiplier(profile.HeightMultiplier);
                 }
             }
         }
 
         public void ResetForPool()
         {
-            _navigation.Stop();
+            if (_visualController == null || _navigation == null || _animationController == null)
+            {
+                InitializeComponents();
+            }
+
+            if (_navigation != null)
+            {
+                _navigation.Stop();
+            }
             if (_queueController != null)
             {
                 _queueController.RemoveFromQueue(this);
             }
-            _shoppingData.Clear();
-            _personalityData.Reset();
+            if (_shoppingData != null)
+            {
+                _shoppingData.Clear();
+            }
+            if (_personalityData != null)
+            {
+                _personalityData.Reset();
+            }
             _currentState = CustomerState.Idle;
-            _animationController.SetState(CustomerState.Idle);
-            _animationController.SetPersonality(CustomerPersonalityType.Normal);
-            _visual.SetBasketVisible(false);
+            if (_animationController != null)
+            {
+                _animationController.ResetToNeutral();
+                _animationController.SetState(CustomerState.Idle);
+                _animationController.SetPersonality(CustomerPersonalityType.Normal);
+            }
+            if (_visual != null)
+            {
+                _visual.SetBasketVisible(false);
+                _visual.SetDebugState(CustomerState.Idle, false);
+            }
             if (_visualController != null)
             {
                 _visualController.ResetVisuals();
             }
-            _visual.SetDebugState(CustomerState.Idle, false);
+            if (_lookAtController != null)
+            {
+                _lookAtController.ResetLookAt();
+            }
         }
     }
 }

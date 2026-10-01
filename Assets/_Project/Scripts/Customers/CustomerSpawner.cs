@@ -149,8 +149,9 @@ namespace MiniMarketTycoon.Customers
             CustomerController customer = _pool.GetCustomer(_configuration, _targetSelector, _queueController);
             if (customer != null)
             {
-                // Cycle through variations A, B, C
-                CustomerVariationType variation = (CustomerVariationType)(_variationCounter % 3);
+                // Cycle through all available customer variations (A through L)
+                int totalVariations = System.Enum.GetValues(typeof(CustomerVariationType)).Length;
+                CustomerVariationType variation = (CustomerVariationType)(_variationCounter % totalVariations);
                 _variationCounter++;
 
                 CustomerPersonalityData personalityData = null;

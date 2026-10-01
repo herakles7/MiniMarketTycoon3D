@@ -1,0 +1,97 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88c930ba49d304c4eaa33d4d9bb8b371, type: 3}
+  m_Name: CustomerVisualConfig
+  m_EditorClassIdentifier: Assembly-CSharp::MiniMarketTycoon.Customers.CustomerVisualConfig
+  MaleProbability: 0.5
+  FemaleProbability: 0.5
+  YoungAdultWeight: 0.35
+  AdultWeight: 0.45
+  MiddleAdultWeight: 0.2
+  SeniorWeight: 0.12
+  SlimBodyWeight: 0.2
+  AverageBodyWeight: 0.5
+  AthleticBodyWeight: 0.18
+  HeavyBodyWeight: 0.12
+  CasualStyleWeight: 0.45
+  SmartCasualStyleWeight: 0.25
+  EverydayStyleWeight: 0.2
+  SportyStyleWeight: 0.1
+  MinHeightMultiplier: 0.92
+  MaxHeightMultiplier: 1.08
+  MinBodyWidthMultiplier: 0.92
+  MaxBodyWidthMultiplier: 1.08
+  MinHeadScale: 0.97
+  MaxHeadScale: 1.03
+  OverallAccessoryChance: 0.18
+  CapChance: 0.15
+  BackpackChance: 0.12
+  HandbagChance: 0.15
+  ShoppingBagChance: 0.15
+  BasketChanceNormal: 0.5
+  BasketChanceBigShopper: 0.8
+  BasketChanceQuickShopper: 0.25
+  BasketChancePatientShopper: 0.5
+  BasketChanceImpatientShopper: 0.4
+  LOD0Distance: 8
+  LOD1Distance: 18
+  SkinFairMaterials:
+  - Mat_Skin_Fair
+  SkinPeachMaterials:
+  - Mat_Skin_Peach
+  SkinOliveMaterials:
+  - Mat_Skin_Olive
+  SkinWarmMaterials:
+  - Mat_Skin_Warm
+  SkinTanMaterials:
+  - Mat_Skin_Tan
+  SkinDeepMaterials:
+  - Mat_Skin_Deep
+  HairBlackMaterials:
+  - Mat_Hair_Black
+  HairDarkBrownMaterials:
+  - Mat_Hair_DarkBrown
+  - Mat_Hair_Black
+  HairBrownMaterials:
+  - Mat_Hair_Brown
+  HairLightBrownMaterials:
+  - Mat_Hair_LightBrown
+  - Mat_Hair_Brown
+  HairBlondeMaterials:
+  - Mat_Hair_Blonde
+  HairGreyMaterials:
+  - Mat_Hair_Grey
+  IrisBrownMaterial: Mat_Eyes_Iris_Brown
+  IrisBlueMaterial: Mat_Eyes_Iris_Blue
+  IrisGreenMaterial: Mat_Eyes_Iris_Green
+  MaleTopMaterials:
+  - Mat_Clothes_Blue
+  - Mat_Clothes_Teal
+  - Mat_Clothes_Maroon
+  - Mat_Clothes_Grey
+  - Mat_Clothes_Green
+  FemaleTopMaterials:
+  - Mat_Clothes_Teal
+  - Mat_Clothes_Maroon
+  - Mat_Clothes_Blue
+  - Mat_Clothes_Coral
+  - Mat_Clothes_White
+  BottomMaterials:
+  - Mat_Pants_DarkGrey
+  - Mat_Pants_Khaki
+  - Mat_Pants_Navy
+  - Mat_Pants_Black
+  - Mat_Pants_LightJeans
+  ShoeMaterials:
+  - Mat_Shoes_Dark
+  - Mat_Shoes_White
+  - Mat_Shoes_Brown

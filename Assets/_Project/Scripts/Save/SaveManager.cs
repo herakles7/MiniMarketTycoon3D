@@ -31,11 +31,18 @@ namespace MiniMarketTycoon.Save
         public event Action<GameSaveData> OnBeforeSave;
         public event Action<GameSaveData> OnSaveCompleted;
 
+        private void EnsurePathsInitialized()
+        {
+            if (string.IsNullOrEmpty(_saveFilePath))
+            {
+                _saveFilePath = Path.Combine(Application.persistentDataPath, SAVE_FILE_NAME);
+                _backupFilePath = Path.Combine(Application.persistentDataPath, SAVE_BACKUP_NAME);
+            }
+        }
+
         protected override void OnInitialized()
         {
-            _saveFilePath = Path.Combine(Application.persistentDataPath, SAVE_FILE_NAME);
-            _backupFilePath = Path.Combine(Application.persistentDataPath, SAVE_BACKUP_NAME);
-
+            EnsurePathsInitialized();
             LoadGame();
         }
 
@@ -53,6 +60,8 @@ namespace MiniMarketTycoon.Save
 
         public void LoadGame()
         {
+            EnsurePathsInitialized();
+
             if (File.Exists(_saveFilePath))
             {
                 try
@@ -119,6 +128,8 @@ namespace MiniMarketTycoon.Save
 
         public void SaveGame()
         {
+            EnsurePathsInitialized();
+
             if (_currentSave == null)
             {
                 Debug.LogWarning("[SaveManager] Cannot save null data.");

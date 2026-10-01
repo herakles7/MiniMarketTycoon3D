@@ -251,7 +251,11 @@ namespace MiniMarketTycoon.Customers
             _shoppingItems.Clear();
             _legacyShoppingList.Clear();
             _cart.Clear();
+            _itemsWanted = 0;
+            _itemsCollected = 0;
+            _currentItemIndex = 0;
             _queueIndex = -1;
+            _remainingPatience = 0f;
         }
     }
 }

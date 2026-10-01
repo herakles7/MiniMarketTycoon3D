@@ -91,7 +91,7 @@ namespace MiniMarketTycoon.Customers
             _stuckTimer = 0f;
             _lastSamplePosition = transform.position;
 
-            if (_agent == null || !_agent.enabled) return;
+            if (_agent == null || !_agent.enabled || !_agent.isOnNavMesh) return;
 
             // Ensure destination is on NavMesh
             if (NavMesh.SamplePosition(destination, out NavMeshHit hit, 2.5f, NavMesh.AllAreas))

@@ -52,6 +52,13 @@ namespace MiniMarketTycoon.Gameplay
         [SerializeField] private Material _cardboardMaterial;
         [SerializeField] private Material _productsAtlasMaterial;
 
+        [Header("Kenney Low-Poly Environment Models")]
+        [SerializeField] private GameObject _kenneyShelfModel;
+        [SerializeField] private GameObject _kenneyCheckoutModel;
+        [SerializeField] private GameObject _kenneyFreezerModel;
+        [SerializeField] private GameObject _kenneyBasketModel;
+        [SerializeField] private Material _kenneyMarketMaterial;
+
         [Header("Product PBR Materials")]
         [SerializeField] private Material _matProdWater;
         [SerializeField] private Material _matProdMilk;
@@ -105,6 +112,12 @@ namespace MiniMarketTycoon.Gameplay
             if (_cardboardMaterial == null) _cardboardMaterial = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/_Project/Art/Materials/Mat_Cardboard.mat");
             if (_productsAtlasMaterial == null) _productsAtlasMaterial = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/_Project/Art/Materials/Mat_Products_Atlas.mat");
 
+            if (_kenneyMarketMaterial == null) _kenneyMarketMaterial = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/_Project/Art/Materials/Mat_Kenney_Market.mat");
+            if (_kenneyShelfModel == null) _kenneyShelfModel = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Art/Environment/Models/shelf-boxes.fbx");
+            if (_kenneyCheckoutModel == null) _kenneyCheckoutModel = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Art/Environment/Models/cash-register.fbx");
+            if (_kenneyFreezerModel == null) _kenneyFreezerModel = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Art/Environment/Models/freezers-standing.fbx");
+            if (_kenneyBasketModel == null) _kenneyBasketModel = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Art/Environment/Models/shopping-basket.fbx");
+
             // Products materials
             if (_matProdWater == null) _matProdWater = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/_Project/Art/Materials/Mat_Prod_Water.mat");
             if (_matProdMilk == null) _matProdMilk = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/_Project/Art/Materials/Mat_Prod_Milk.mat");
@@ -126,15 +139,35 @@ namespace MiniMarketTycoon.Gameplay
 #if UNITY_EDITOR
             AutoAssignMaterials();
 #endif
+            EnsureKenneyModelsLoaded();
             if (_rebuildOnStart || transform.childCount == 0)
             {
                 BuildEnvironment();
             }
         }
 
+        private void EnsureKenneyModelsLoaded()
+        {
+            if (_kenneyShelfModel == null) _kenneyShelfModel = Resources.Load<GameObject>("shelf-boxes");
+            if (_kenneyCheckoutModel == null) _kenneyCheckoutModel = Resources.Load<GameObject>("cash-register");
+            if (_kenneyFreezerModel == null) _kenneyFreezerModel = Resources.Load<GameObject>("freezers-standing");
+            if (_kenneyBasketModel == null) _kenneyBasketModel = Resources.Load<GameObject>("shopping-basket");
+            if (_kenneyMarketMaterial == null) _kenneyMarketMaterial = Resources.Load<Material>("Mat_Kenney_Market");
+
+#if UNITY_EDITOR
+            if (_kenneyShelfModel == null) _kenneyShelfModel = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Art/Environment/Models/shelf-boxes.fbx");
+            if (_kenneyCheckoutModel == null) _kenneyCheckoutModel = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Art/Environment/Models/cash-register.fbx");
+            if (_kenneyFreezerModel == null) _kenneyFreezerModel = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Art/Environment/Models/freezers-standing.fbx");
+            if (_kenneyBasketModel == null) _kenneyBasketModel = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Art/Environment/Models/shopping-basket.fbx");
+            if (_kenneyMarketMaterial == null) _kenneyMarketMaterial = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/_Project/Art/Materials/Mat_Kenney_Market.mat");
+#endif
+        }
+
         [ContextMenu("Rebuild Realistic Market Environment")]
         public void BuildEnvironment()
         {
+            EnsureKenneyModelsLoaded();
+
             // Clear existing hierarchy
             while (transform.childCount > 0)
             {
@@ -260,8 +293,9 @@ namespace MiniMarketTycoon.Gameplay
             CreateBox("Storefront_Left_Pillar", new Vector3(-7.15f, 2f, -10f), new Vector3(0.5f, 4.4f, 0.6f), _doorMetalMaterial, parent);
             CreateBox("Storefront_Right_Pillar", new Vector3(7.15f, 2f, -10f), new Vector3(0.5f, 4.4f, 0.6f), _doorMetalMaterial, parent);
 
-            // 3D Brand Signboard ("MINI MARKET")
-            CreateBox("Storefront_Signboard", new Vector3(0f, 3.9f, -10.32f), new Vector3(5.5f, 1.35f, 0.15f), _signboardMaterial, parent);
+            // 3D Brand Signboard ("MINI MARKET") - Rotated Y: 180 so front faces outward
+            GameObject signboard = CreateBox("Storefront_Signboard", new Vector3(0f, 3.9f, -10.32f), new Vector3(5.5f, 1.35f, 0.15f), _signboardMaterial, parent);
+            signboard.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
             CreateBox("Signboard_Canopy", new Vector3(0f, 4.6f, -10.45f), new Vector3(6.0f, 0.15f, 0.45f), _doorMetalMaterial, parent);
 
             // Storefront Plate Glass Windows
@@ -426,11 +460,25 @@ namespace MiniMarketTycoon.Gameplay
             gondola.transform.parent = parent;
             gondola.transform.position = pos;
 
-            CreateBox("Base_Plinth", pos + new Vector3(0f, 0.1f, 0f), new Vector3(1.5f, 0.2f, 0.85f), _shelfMetalMaterial, gondola.transform, addCollider: true);
-            CreateBox("Backboard_Center", pos + new Vector3(0f, 0.95f, 0f), new Vector3(1.5f, 1.7f, 0.06f), _shelfMetalMaterial, gondola.transform);
-            CreateBox("Post_Left", pos + new Vector3(-0.73f, 0.95f, 0f), new Vector3(0.06f, 1.7f, 0.85f), _shelfMetalMaterial, gondola.transform);
-            CreateBox("Post_Right", pos + new Vector3(0.73f, 0.95f, 0f), new Vector3(0.06f, 1.7f, 0.85f), _shelfMetalMaterial, gondola.transform);
-            CreateBox("Category_Header", pos + new Vector3(0f, 1.95f, 0f), new Vector3(1.35f, 0.25f, 0.15f), _shelfAccentMaterial, gondola.transform);
+            if (_kenneyShelfModel != null)
+            {
+                GameObject shelfModelObj = Instantiate(_kenneyShelfModel, gondola.transform);
+                shelfModelObj.name = "Shelf_Kenney_Model";
+                shelfModelObj.transform.position = pos;
+                shelfModelObj.transform.localScale = new Vector3(2.0f, 2.0f, 2.0f);
+                ApplyMaterialToHierarchy(shelfModelObj, _kenneyMarketMaterial);
+                BoxCollider col = shelfModelObj.AddComponent<BoxCollider>();
+                col.center = new Vector3(0f, 0.8f, 0f);
+                col.size = new Vector3(1.6f, 1.6f, 1.4f);
+            }
+            else
+            {
+                CreateBox("Base_Plinth", pos + new Vector3(0f, 0.1f, 0f), new Vector3(1.5f, 0.2f, 0.85f), _shelfMetalMaterial, gondola.transform, addCollider: true);
+                CreateBox("Backboard_Center", pos + new Vector3(0f, 0.95f, 0f), new Vector3(1.5f, 1.7f, 0.06f), _shelfMetalMaterial, gondola.transform);
+                CreateBox("Post_Left", pos + new Vector3(-0.73f, 0.95f, 0f), new Vector3(0.06f, 1.7f, 0.85f), _shelfMetalMaterial, gondola.transform);
+                CreateBox("Post_Right", pos + new Vector3(0.73f, 0.95f, 0f), new Vector3(0.06f, 1.7f, 0.85f), _shelfMetalMaterial, gondola.transform);
+                CreateBox("Category_Header", pos + new Vector3(0f, 1.95f, 0f), new Vector3(1.35f, 0.25f, 0.15f), _shelfAccentMaterial, gondola.transform);
+            }
 
             List<GameObject> visualItems = new List<GameObject>();
 
@@ -487,8 +535,22 @@ namespace MiniMarketTycoon.Gameplay
             wallShelf.transform.parent = parent;
             wallShelf.transform.position = pos;
 
-            CreateBox("Base_Plinth", pos + new Vector3(0f, 0.1f, 0f), new Vector3(0.55f, 0.2f, 2.6f), _shelfMetalMaterial, wallShelf.transform, addCollider: true);
-            CreateBox("Backboard", pos + new Vector3(0.24f, 1.15f, 0f), new Vector3(0.06f, 2.1f, 2.6f), _shelfMetalMaterial, wallShelf.transform);
+            if (_kenneyShelfModel != null)
+            {
+                GameObject wallShelfModelObj = Instantiate(_kenneyShelfModel, wallShelf.transform);
+                wallShelfModelObj.name = "Wall_Shelf_Kenney_Model";
+                wallShelfModelObj.transform.position = pos;
+                wallShelfModelObj.transform.localScale = new Vector3(2.0f, 2.0f, 2.0f);
+                ApplyMaterialToHierarchy(wallShelfModelObj, _kenneyMarketMaterial);
+                BoxCollider col = wallShelfModelObj.AddComponent<BoxCollider>();
+                col.center = new Vector3(0f, 0.8f, 0f);
+                col.size = new Vector3(1.6f, 1.6f, 1.4f);
+            }
+            else
+            {
+                CreateBox("Base_Plinth", pos + new Vector3(0f, 0.1f, 0f), new Vector3(0.55f, 0.2f, 2.6f), _shelfMetalMaterial, wallShelf.transform, addCollider: true);
+                CreateBox("Backboard", pos + new Vector3(0.24f, 1.15f, 0f), new Vector3(0.06f, 2.1f, 2.6f), _shelfMetalMaterial, wallShelf.transform);
+            }
 
             List<GameObject> visualItems = new List<GameObject>();
 
@@ -540,17 +602,28 @@ namespace MiniMarketTycoon.Gameplay
             cooler.transform.parent = parent;
             cooler.transform.position = pos;
 
-            // Outer cabinet
-            CreateBox("Cooler_Cabinet", pos + new Vector3(0f, 1.125f, 0f), new Vector3(0.75f, 2.25f, 2.2f), _refrigeratorMaterial, cooler.transform, addCollider: true);
-            CreateBox("Interior_Chamber", pos + new Vector3(0.05f, 1.05f, 0f), new Vector3(0.65f, 1.65f, 2.05f), _refrigeratorInteriorMaterial, cooler.transform);
-            CreateBox("Header_Canopy", pos + new Vector3(0.38f, 2.05f, 0f), new Vector3(0.04f, 0.35f, 2.15f), _refrigeratorHeaderMaterial, cooler.transform);
-
-            // Double Glass Front Doors with Handles
-            CreateBox("Glass_Door_A", pos + new Vector3(0.38f, 1.05f, -0.52f), new Vector3(0.04f, 1.65f, 0.98f), _glassMaterial, cooler.transform);
-            CreateBox("Handle_A", pos + new Vector3(0.42f, 1.05f, -0.1f), new Vector3(0.04f, 0.75f, 0.04f), _chromeMaterial, cooler.transform);
-
-            CreateBox("Glass_Door_B", pos + new Vector3(0.38f, 1.05f, 0.52f), new Vector3(0.04f, 1.65f, 0.98f), _glassMaterial, cooler.transform);
-            CreateBox("Handle_B", pos + new Vector3(0.42f, 1.05f, 0.1f), new Vector3(0.04f, 0.75f, 0.04f), _chromeMaterial, cooler.transform);
+            if (_kenneyFreezerModel != null)
+            {
+                GameObject freezerVis = Instantiate(_kenneyFreezerModel, cooler.transform);
+                freezerVis.name = "Freezer_Kenney_Model";
+                freezerVis.transform.position = pos;
+                freezerVis.transform.localRotation = Quaternion.Euler(0f, 90f, 0f);
+                freezerVis.transform.localScale = new Vector3(2.0f, 2.0f, 2.0f);
+                ApplyMaterialToHierarchy(freezerVis, _kenneyMarketMaterial);
+                BoxCollider col = freezerVis.AddComponent<BoxCollider>();
+                col.center = new Vector3(0f, 0.9f, 0f);
+                col.size = new Vector3(2.0f, 1.8f, 1.0f);
+            }
+            else
+            {
+                CreateBox("Cooler_Cabinet", pos + new Vector3(0f, 1.125f, 0f), new Vector3(0.75f, 2.25f, 2.2f), _refrigeratorMaterial, cooler.transform, addCollider: true);
+                CreateBox("Interior_Chamber", pos + new Vector3(0.05f, 1.05f, 0f), new Vector3(0.65f, 1.65f, 2.05f), _refrigeratorInteriorMaterial, cooler.transform);
+                CreateBox("Header_Canopy", pos + new Vector3(0.38f, 2.05f, 0f), new Vector3(0.04f, 0.35f, 2.15f), _refrigeratorHeaderMaterial, cooler.transform);
+                CreateBox("Glass_Door_A", pos + new Vector3(0.38f, 1.05f, -0.52f), new Vector3(0.04f, 1.65f, 0.98f), _glassMaterial, cooler.transform);
+                CreateBox("Handle_A", pos + new Vector3(0.42f, 1.05f, -0.1f), new Vector3(0.04f, 0.75f, 0.04f), _chromeMaterial, cooler.transform);
+                CreateBox("Glass_Door_B", pos + new Vector3(0.38f, 1.05f, 0.52f), new Vector3(0.04f, 1.65f, 0.98f), _glassMaterial, cooler.transform);
+                CreateBox("Handle_B", pos + new Vector3(0.42f, 1.05f, 0.1f), new Vector3(0.04f, 0.75f, 0.04f), _chromeMaterial, cooler.transform);
+            }
 
             List<GameObject> visualItems = new List<GameObject>();
 
@@ -597,37 +670,52 @@ namespace MiniMarketTycoon.Gameplay
             Vector3 basePos = new Vector3(-2.8f, 0f, -6.5f);
             checkoutRoot.transform.position = basePos;
 
-            CreateBox("Counter_Main_Body", basePos + new Vector3(0f, 0.45f, 0f), new Vector3(2.6f, 0.9f, 0.85f), _counterBodyMaterial, checkoutRoot.transform, addCollider: true);
-            CreateBox("Countertop_Surface", basePos + new Vector3(0f, 0.91f, 0f), new Vector3(2.65f, 0.04f, 0.9f), _counterTopMaterial, checkoutRoot.transform);
+            if (_kenneyCheckoutModel != null)
+            {
+                GameObject checkoutVis = Instantiate(_kenneyCheckoutModel, checkoutRoot.transform);
+                checkoutVis.name = "Checkout_Kenney_Model";
+                checkoutVis.transform.position = basePos;
+                checkoutVis.transform.localRotation = Quaternion.Euler(0f, 90f, 0f);
+                checkoutVis.transform.localScale = new Vector3(1.8f, 1.8f, 1.8f);
+                ApplyMaterialToHierarchy(checkoutVis, _kenneyMarketMaterial);
+                BoxCollider col = checkoutVis.AddComponent<BoxCollider>();
+                col.center = new Vector3(0f, 0.54f, 0f);
+                col.size = new Vector3(1.53f, 1.08f, 1.53f);
+            }
+            else
+            {
+                CreateBox("Counter_Main_Body", basePos + new Vector3(0f, 0.45f, 0f), new Vector3(2.6f, 0.9f, 0.85f), _counterBodyMaterial, checkoutRoot.transform, addCollider: true);
+                CreateBox("Countertop_Surface", basePos + new Vector3(0f, 0.91f, 0f), new Vector3(2.65f, 0.04f, 0.9f), _counterTopMaterial, checkoutRoot.transform);
 
-            CreateBox("Conveyor_Belt_Bed", basePos + new Vector3(-0.35f, 0.93f, 0f), new Vector3(1.6f, 0.02f, 0.65f), _conveyorBeltMaterial, checkoutRoot.transform);
-            CreateBox("Conveyor_Rail_Front", basePos + new Vector3(-0.35f, 0.96f, -0.34f), new Vector3(1.6f, 0.05f, 0.03f), _chromeMaterial, checkoutRoot.transform);
-            CreateBox("Conveyor_Rail_Back", basePos + new Vector3(-0.35f, 0.96f, 0.34f), new Vector3(1.6f, 0.05f, 0.03f), _chromeMaterial, checkoutRoot.transform);
+                CreateBox("Conveyor_Belt_Bed", basePos + new Vector3(-0.35f, 0.93f, 0f), new Vector3(1.6f, 0.02f, 0.65f), _conveyorBeltMaterial, checkoutRoot.transform);
+                CreateBox("Conveyor_Rail_Front", basePos + new Vector3(-0.35f, 0.96f, -0.34f), new Vector3(1.6f, 0.05f, 0.03f), _chromeMaterial, checkoutRoot.transform);
+                CreateBox("Conveyor_Rail_Back", basePos + new Vector3(-0.35f, 0.96f, 0.34f), new Vector3(1.6f, 0.05f, 0.03f), _chromeMaterial, checkoutRoot.transform);
 
-            // Cashier Register Monitor
-            GameObject reg = new GameObject("Cashier_Register_Monitor");
-            reg.transform.parent = checkoutRoot.transform;
-            CreateBox("Register_Base", basePos + new Vector3(0.85f, 1.0f, 0.15f), new Vector3(0.2f, 0.15f, 0.2f), _electronicsMaterial, reg.transform);
-            CreateBox("Register_Screen", basePos + new Vector3(0.85f, 1.2f, 0.15f), new Vector3(0.35f, 0.28f, 0.04f), _posScreenMaterial, reg.transform);
+                // Cashier Register Monitor
+                GameObject reg = new GameObject("Cashier_Register_Monitor");
+                reg.transform.parent = checkoutRoot.transform;
+                CreateBox("Register_Base", basePos + new Vector3(0.85f, 1.0f, 0.15f), new Vector3(0.2f, 0.15f, 0.2f), _electronicsMaterial, reg.transform);
+                CreateBox("Register_Screen", basePos + new Vector3(0.85f, 1.2f, 0.15f), new Vector3(0.35f, 0.28f, 0.04f), _posScreenMaterial, reg.transform);
 
-            // Customer POS PIN Pad Terminal
-            GameObject posTerm = new GameObject("POS_Terminal");
-            posTerm.transform.parent = checkoutRoot.transform;
-            CreateBox("POS_Stand", basePos + new Vector3(0.45f, 1.0f, -0.25f), new Vector3(0.12f, 0.15f, 0.12f), _doorMetalMaterial, posTerm.transform);
-            CreateBox("POS_Keypad", basePos + new Vector3(0.45f, 1.12f, -0.25f), new Vector3(0.14f, 0.05f, 0.22f), _electronicsMaterial, posTerm.transform);
+                // Customer POS PIN Pad Terminal
+                GameObject posTerm = new GameObject("POS_Terminal");
+                posTerm.transform.parent = checkoutRoot.transform;
+                CreateBox("POS_Stand", basePos + new Vector3(0.45f, 1.0f, -0.25f), new Vector3(0.12f, 0.15f, 0.12f), _doorMetalMaterial, posTerm.transform);
+                CreateBox("POS_Keypad", basePos + new Vector3(0.45f, 1.12f, -0.25f), new Vector3(0.14f, 0.05f, 0.22f), _electronicsMaterial, posTerm.transform);
 
-            // Barcode Scanner Bed
-            CreateBox("Barcode_Scanner_Glass", basePos + new Vector3(0.55f, 0.94f, 0.08f), new Vector3(0.22f, 0.01f, 0.25f), _glassMaterial, checkoutRoot.transform);
+                // Barcode Scanner Bed
+                CreateBox("Barcode_Scanner_Glass", basePos + new Vector3(0.55f, 0.94f, 0.08f), new Vector3(0.22f, 0.01f, 0.25f), _glassMaterial, checkoutRoot.transform);
 
-            // Bag Stand
-            CreateBox("Bag_Stand_Post", basePos + new Vector3(1.2f, 1.15f, 0f), new Vector3(0.04f, 0.5f, 0.04f), _chromeMaterial, checkoutRoot.transform);
-            CreateBox("Bag_Stand_Arm", basePos + new Vector3(1.2f, 1.38f, 0f), new Vector3(0.25f, 0.03f, 0.25f), _chromeMaterial, checkoutRoot.transform);
-            CreateBox("Plastic_Bags_Pack", basePos + new Vector3(1.2f, 1.15f, 0.08f), new Vector3(0.22f, 0.35f, 0.08f), _floorMaterial, checkoutRoot.transform);
+                // Bag Stand
+                CreateBox("Bag_Stand_Post", basePos + new Vector3(1.2f, 1.15f, 0f), new Vector3(0.04f, 0.5f, 0.04f), _chromeMaterial, checkoutRoot.transform);
+                CreateBox("Bag_Stand_Arm", basePos + new Vector3(1.2f, 1.38f, 0f), new Vector3(0.25f, 0.03f, 0.25f), _chromeMaterial, checkoutRoot.transform);
+                CreateBox("Plastic_Bags_Pack", basePos + new Vector3(1.2f, 1.15f, 0.08f), new Vector3(0.22f, 0.35f, 0.08f), _floorMaterial, checkoutRoot.transform);
 
-            // Front Impulse Rack
-            CreateBox("Impulse_Rack_Frame", basePos + new Vector3(-0.35f, 0.6f, -0.46f), new Vector3(1.4f, 0.5f, 0.12f), _shelfTraysMaterial, checkoutRoot.transform);
-            CreateBox("Impulse_Gums_Row1", basePos + new Vector3(-0.35f, 0.75f, -0.46f), new Vector3(1.3f, 0.08f, 0.08f), _shelfAccentMaterial, checkoutRoot.transform);
-            CreateBox("Impulse_Gums_Row2", basePos + new Vector3(-0.35f, 0.5f, -0.46f), new Vector3(1.3f, 0.08f, 0.08f), _basketPlasticMaterial, checkoutRoot.transform);
+                // Front Impulse Rack
+                CreateBox("Impulse_Rack_Frame", basePos + new Vector3(-0.35f, 0.6f, -0.46f), new Vector3(1.4f, 0.5f, 0.12f), _shelfTraysMaterial, checkoutRoot.transform);
+                CreateBox("Impulse_Gums_Row1", basePos + new Vector3(-0.35f, 0.75f, -0.46f), new Vector3(1.3f, 0.08f, 0.08f), _shelfAccentMaterial, checkoutRoot.transform);
+                CreateBox("Impulse_Gums_Row2", basePos + new Vector3(-0.35f, 0.5f, -0.46f), new Vector3(1.3f, 0.08f, 0.08f), _basketPlasticMaterial, checkoutRoot.transform);
+            }
 
             NavMeshObstacle obs = checkoutRoot.AddComponent<NavMeshObstacle>();
             obs.center = new Vector3(0f, 0.6f, 0f);
@@ -655,14 +743,25 @@ namespace MiniMarketTycoon.Gameplay
             Vector3 bPos = new Vector3(-2.2f, 0f, -8.8f);
             station.transform.position = bPos;
 
-            CreateBox("Stand_Base", bPos + new Vector3(0f, 0.05f, 0f), new Vector3(0.55f, 0.08f, 0.45f), _chromeMaterial, station.transform, addCollider: true);
-            CreateBox("Stand_Back_Bar", bPos + new Vector3(0f, 0.5f, -0.2f), new Vector3(0.5f, 0.95f, 0.04f), _chromeMaterial, station.transform);
-
-            for (int i = 0; i < 4; i++)
+            if (_kenneyBasketModel != null)
             {
-                float y = 0.12f + i * 0.1f;
-                CreateBox($"Basket_{i}", bPos + new Vector3(0f, y + 0.12f, 0f), new Vector3(0.48f, 0.22f, 0.36f), _basketPlasticMaterial, station.transform);
-                CreateBox($"Handle_{i}", bPos + new Vector3(0f, y + 0.24f, 0f), new Vector3(0.42f, 0.03f, 0.03f), _doorMetalMaterial, station.transform);
+                GameObject basketVis = Instantiate(_kenneyBasketModel, station.transform);
+                basketVis.name = "ShoppingBasket_Kenney_Model";
+                basketVis.transform.position = bPos + new Vector3(0f, 0.3f, 0f);
+                basketVis.transform.localScale = new Vector3(1.8f, 1.8f, 1.8f);
+                ApplyMaterialToHierarchy(basketVis, _kenneyMarketMaterial);
+            }
+            else
+            {
+                CreateBox("Stand_Base", bPos + new Vector3(0f, 0.05f, 0f), new Vector3(0.55f, 0.08f, 0.45f), _chromeMaterial, station.transform, addCollider: true);
+                CreateBox("Stand_Back_Bar", bPos + new Vector3(0f, 0.5f, -0.2f), new Vector3(0.5f, 0.95f, 0.04f), _chromeMaterial, station.transform);
+
+                for (int i = 0; i < 4; i++)
+                {
+                    float y = 0.12f + i * 0.1f;
+                    CreateBox($"Basket_{i}", bPos + new Vector3(0f, y + 0.12f, 0f), new Vector3(0.48f, 0.22f, 0.36f), _basketPlasticMaterial, station.transform);
+                    CreateBox($"Handle_{i}", bPos + new Vector3(0f, y + 0.24f, 0f), new Vector3(0.42f, 0.03f, 0.03f), _doorMetalMaterial, station.transform);
+                }
             }
         }
 
@@ -1101,6 +1200,16 @@ namespace MiniMarketTycoon.Gameplay
                 rend.sharedMaterial = mat;
             }
             return go;
+        }
+
+        private void ApplyMaterialToHierarchy(GameObject root, Material mat)
+        {
+            if (root == null || mat == null) return;
+            Renderer[] renderers = root.GetComponentsInChildren<Renderer>(true);
+            foreach (var r in renderers)
+            {
+                r.sharedMaterial = mat;
+            }
         }
     }
 }

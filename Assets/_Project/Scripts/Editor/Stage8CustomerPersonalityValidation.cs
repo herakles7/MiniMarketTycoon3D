@@ -354,7 +354,7 @@ namespace MiniMarketTycoon.Editor
                 bool test12Pass = !string.IsNullOrEmpty(saveJson) &&
                                   !saveJson.Contains("CustomerPersonalityData") &&
                                   !saveJson.Contains("HasLeftDueToImpatience") &&
-                                  saveJson.Contains("MarketLevel");
+                                  (saveJson.Contains("StoreLevel") || saveJson.Contains("MarketLevel"));
 
                 if (test12Pass)
                 {

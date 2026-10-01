@@ -14,8 +14,8 @@ namespace MiniMarketTycoon.Gameplay
         [SerializeField] private Camera _targetCamera;
 
         [Header("Viewing Angle")]
-        [SerializeField] private float _pitchAngle = 48f;
-        [SerializeField] private float _yawAngle = 30f;
+        [SerializeField] private float _pitchAngle = 45f;
+        [SerializeField] private float _yawAngle = 0f;
 
         [Header("Pan Settings")]
         [SerializeField] private float _panSpeed = 0.035f;
@@ -26,9 +26,9 @@ namespace MiniMarketTycoon.Gameplay
         [Header("Zoom Settings")]
         [SerializeField] private float _zoomSpeed = 1.2f;
         [SerializeField] private float _zoomDamping = 8f;
-        [SerializeField] private float _minZoom = 10f;
-        [SerializeField] private float _maxZoom = 28f;
-        [SerializeField] private float _currentZoom = 18f;
+        [SerializeField] private float _minZoom = 6f;
+        [SerializeField] private float _maxZoom = 20f;
+        [SerializeField] private float _currentZoom = 11.31f;
 
         private Vector3 _currentPivotPosition;
         private Vector3 _targetPosition;
@@ -45,7 +45,7 @@ namespace MiniMarketTycoon.Gameplay
                 }
             }
 
-            _currentPivotPosition = Vector3.zero;
+            _currentPivotPosition = new Vector3(0f, 0f, 2f);
             _targetPosition = _currentPivotPosition;
             _targetZoom = _currentZoom;
 

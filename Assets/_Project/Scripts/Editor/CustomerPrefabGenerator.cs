@@ -24,9 +24,7 @@ namespace MiniMarketTycoon.Editor
         [MenuItem("MiniMarket/Generate Customer Prefab")]
         public static void GeneratePrefab()
         {
-            Stage9MarketRealismSetup.EnsureAllMaterialsExist();
-            Stage9MarketRealismSetup.EnsureVisualConfigExists();
-            Stage9MarketRealismSetup.BuildRealisticModularCustomerPrefab();
+            Stage11VisualPolishSetup.ExecuteFullOverhaul();
         }
     }
 }
